@@ -10,4 +10,4 @@ Two-way communication between master and Pi
 Easy Tester using master (i.e. user controlled) 
 
 
-Think about at what levels each of this information and checks should be at, i.e. who's the expert for each piece of info or action (damnit someone should have designed this better. I think I should do a whole design big picture look at this)
+Think about at what levels each of this information and checks should be at, i.e. who's the expert for each piece of info or action 
