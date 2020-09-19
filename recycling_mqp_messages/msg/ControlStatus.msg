@@ -1,0 +1,2 @@
+uint8 system_state
+string state_message

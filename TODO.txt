@@ -1,0 +1,13 @@
+Two-way communication between Teensy and Pi:
+	Teensy receive from pi, decode, and act on packets
+	Pi receive from master, encode, and send packets to Teensy
+	TESTS: TDD: description -> test: what's the next small change? write a test for it. watch it fail. implement. watch it pass. make sure everything passes. 
+
+Two-way communication between master and Pi
+	Master create and send packets to pi
+	pi receive packets and send to Teensy (same as above) 
+
+Easy Tester using master (i.e. user controlled) 
+
+
+Think about at what levels each of this information and checks should be at, i.e. who's the expert for each piece of info or action (damnit someone should have designed this better. I think I should do a whole design big picture look at this)

@@ -1,0 +1,4 @@
+int32 position_x
+int32 position_z
+---
+uint8 success

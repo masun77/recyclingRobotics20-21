@@ -1,0 +1,4 @@
+uint8 limit_x_min
+uint8 limit_x_max
+uint8 limit_z_min
+uint8 limit_z_max
