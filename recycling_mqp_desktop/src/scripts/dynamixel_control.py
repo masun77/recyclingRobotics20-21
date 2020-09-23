@@ -66,7 +66,7 @@ def motor_control():
 	# run node
 	rate = rospy.Rate(10)  # 10hz
 	try:
-		while not rospy.is_shutdown():
+		while not rospy.is_shutdown():  # todo: verify what these positions are (wrt xyz)
 			# publish arm status
 			arm_pub.publish(arm_a.get_position()[0], arm_b.get_position()[0], arm_a.is_moving()[0], arm_b.is_moving()[0])
 
