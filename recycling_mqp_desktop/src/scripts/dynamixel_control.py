@@ -28,8 +28,12 @@ arm_a = None
 arm_b = None
 gripper = None
 
+# home location
+ARM_A_HOME = 2000
+ARM_B_HOME = 2000
+GRIPPER_HOME = 500    # todo pick home location
 
-def motor_control():
+def initializeMotors():
 	global arm_a, arm_b, gripper
 
 	rospy.loginfo("Initializing Dynamixel motors...")
@@ -44,7 +48,6 @@ def motor_control():
 		rospy.logfatal("Failed to connect to U2D2 controller at %s" % CONTROLLER_DEV)
 		exit(0)
 
-	# if we made it here, it was successful
 	rospy.loginfo("Connected to U2D2")
 
 	# initialize packet handler (protocol 2)
@@ -63,16 +66,30 @@ def motor_control():
 	gripper.enable_torque()
 	rospy.logwarn("Gripper dynamixel torque enabled")
 
-	# run node
+	return port
+
+def returnHome():
+	global arm_a, arm_b, gripper
+	#todo: send message to steppers to return to home position
+	arm_a.set_goal_position(ARM_A_HOME)
+	arm_b.set_goal_position(ARM_B_HOME)
+	gripper.set_goal_position(GRIPPER_HOME)  # todo: does setting the goal position make them move?
+
+def motor_control():
+	global arm_a, arm_b, gripper
+	port = initializeMotors()
 	rate = rospy.Rate(10)  # 10hz
 	try:
-		while not rospy.is_shutdown():
+		while not rospy.is_shutdown():  # todo: verify what these positions are (wrt xyz)
 			# publish arm status
 			arm_pub.publish(arm_a.get_position()[0], arm_b.get_position()[0], arm_a.is_moving()[0], arm_b.is_moving()[0])
 
 			# publish gripper status
 			gripper_pos = gripper.get_position()[0]
 			gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
+
+			#todo: id, pickup, and drop off item
+			returnHome()
 
 			rate.sleep()
 	except rospy.ROSInterruptException:
