@@ -1,4 +1,4 @@
-#test file for teensy comms
+# todo: move to separate tests folder (not src)
 
 import unittest
 import recycling_mqp_pi.src.scripts.teensy_comms

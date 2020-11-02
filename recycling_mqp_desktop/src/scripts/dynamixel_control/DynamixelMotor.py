@@ -4,7 +4,6 @@ import rospy
 from dynamixel_sdk import robotis_def
 from control_table import XC530W150
 
-
 class DynamixelMotor:
 	# motor attributes
 	id = None

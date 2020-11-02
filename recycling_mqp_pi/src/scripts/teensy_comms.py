@@ -30,7 +30,7 @@ def encode_packet(packet):
 # @param x_a: the current position of the arm on the x axis
 # @param x_b: the desired position of the arm on the x axis
 # @return: informs user how off the position is to the desired one
-def checkXPos(x_a, x_b):
+def checkXPosition(x_a, x_b):
 	if x_a != x_b:
 		rospy.logerr_throttle(0.5, "X-axis motors are de-sync'd! \
 							Off by %d steps" % abs(x_a - x_b))
@@ -38,7 +38,7 @@ def checkXPos(x_a, x_b):
 # @param x_a_dir: the current direction of the arm on the x axis
 # @param x_b_dir: the desired direction of the arm on the x axis
 # @return: informs user how off the current direction is to the desired one
-def checkXDir(x_a_dir, x_b_dir):
+def checkXDirection(x_a_dir, x_b_dir):
 	if x_a_dir != x_b_dir:
 		rospy.logerr_throttle(0.5, "X-axis motor directions are not the same? \
 							A is %d and B is %d" % (x_a_dir, x_b_dir))
@@ -57,8 +57,8 @@ def getStatus(statusBit):
 def checkStatusesMakeSense(limit_status):
 	if limit_status["x_min"] and limit_status["x_max"]:
 		rospy.logwarn_throttle(1, "Both X minimum and X maximum limits are triggered, check system.")
-	elif limit_status["z_min"] and limit_status["z_max"]:
-		rospy.logwarn_throttle(1, "Both Z minimum and Z maximum limits are triggered, check system.")
+	elif limit_status["y_min"] and limit_status["y_max"]:
+		rospy.logwarn_throttle(1, "Both Y minimum and Y maximum limits are triggered, check system.")
 
 # @param packetInfo: contains the info form the packet
 # @return limit_status: returns the status of the limit reached
@@ -67,10 +67,10 @@ def getLimitStatuses(packetInfo):
 	for i in range(0, 8):
 		limits[i] = (packetInfo & (1 << i)) > 0
 	limit_status = {
-		"x_min": limits[0] or limits[1],
+		"x_min": limits[0] or limits[1],    # todo: verify that x and y correspond to physical x and y
 		"x_max": limits[2] or limits[3],
-		"z_min": limits[4] or limits[5],
-		"z_max": limits[6] or limits[7]
+		"y_min": limits[4] or limits[5],
+		"y_max": limits[6] or limits[7]
 	}
 	checkStatusesMakeSense(limit_status)
 	return limit_status
@@ -87,11 +87,11 @@ def decode_packet(packet):
 	limit_status = getLimitStatuses(packet_data[2])
 	x_a = packet_data[3]
 	x_b = packet_data[4]
-	checkXPos(x_a, x_b)
+	checkXPosition(x_a, x_b)
 	x_a_dir = packet_data[6]
 	x_b_dir = packet_data[7]
-	checkXDir(x_a_dir, x_b_dir)
-	# todo: might want to do more checks than this. e.g. why don't they check z?
+	checkXDirection(x_a_dir, x_b_dir)
+	# todo: might want to do more checks than this. e.g. why don't they check y?
 
 	return {
 		"control_status": status,
@@ -100,8 +100,9 @@ def decode_packet(packet):
 		"limits": limit_status,
 		"aligned": x_a == x_b,
 		"x": x_a,
-		"z": packet_data[5],
-		"z_dir": packet_data[8]
+		"x_dir": x_a_dir,
+		"y": packet_data[5],
+		"y_dir": packet_data[8]
 	}
 
 # @return: stops the arm if anything has disconnected
@@ -147,10 +148,10 @@ def checkNoDroppedBits(info):
 # @param data: the info available for the arm (position, aligned, etc.)
 # @return: the data for the stepper and the limit
 def publishData(stepper_pub, limit_pub, data):
-	stepper_pub.publish(data["enabled"], data["aligned"], data["x"], data["z"], data["x_dir"],
-						data["z_dir"])
-	limit_pub.publish(data["limits"]["x_min"], data["limits"]["x_max"], data["limits"]["z_min"],
-								  data["limits"]["z_max"])
+	stepper_pub.publish(data["enabled"], data["aligned"], data["x"], data["y"], data["x_dir"],
+						data["y_dir"])
+	limit_pub.publish(data["limits"]["x_min"], data["limits"]["x_max"], data["limits"]["y_min"],
+								  data["limits"]["y_max"])
 
 # @param controlStatusByte: shows if the status byte is okay or not
 # @param status: shows status of robot
