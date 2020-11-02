@@ -127,7 +127,6 @@ def arm_control(position):
 
 	return ArmControlResponse(int(success))
 
-
 if __name__ == '__main__':
 	try:
 		gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
