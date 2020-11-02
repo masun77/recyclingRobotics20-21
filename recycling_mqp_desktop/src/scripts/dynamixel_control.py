@@ -28,7 +28,7 @@ arm_a = None
 arm_b = None
 gripper = None
 
-
+# @return: enables or disables the torques depending the status
 def motor_control():
 	global arm_a, arm_b, gripper
 
@@ -91,7 +91,8 @@ def motor_control():
 	port.closePort()
 	rospy.logwarn("Motor control node safely stopped")
 
-
+# @param set_open: status of gripper, open or close
+# @return: tells the user if the gripper has properly moved
 def gripper_control(set_open):
 	if set_open == 1:
 		success = gripper.set_goal_position(config.GRIPPER_OPEN_POS)
@@ -100,7 +101,8 @@ def gripper_control(set_open):
 
 	return GripperControlResponse(int(success))
 
-
+# @param position: current position of arm
+# @return: tells the user if the arm moved successfully
 def arm_control(position):
 	success = arm_a.set_goal_position(position)
 
@@ -110,7 +112,7 @@ def arm_control(position):
 
 	return ArmControlResponse(int(success))
 
-
+# main function to control the status of the arm and gripper
 if __name__ == '__main__':
 	try:
 		gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)

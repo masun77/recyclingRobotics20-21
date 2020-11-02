@@ -5,6 +5,7 @@
 #define CONTROL_STOPPED	1
 #define CONTROL_ESTOP	0
 
+// defines the control state
 typedef struct state {
 	uint8_t control_state;
 	uint8_t enabled;
