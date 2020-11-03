@@ -9,35 +9,35 @@
 state_t state;
 packet_send_t packet;
 unsigned long prev_millis = 0;
-int updateIntervalMilliseconds = 200;
 
-MultiStepper stepper_x;
-AccelStepper stepper_x1(AccelStepper::DRIVER, STR3_X1_STEP, STR3_X1_DIR, 0, 0, false);
-AccelStepper stepper_x2(AccelStepper::DRIVER, STR3_X2_STEP, STR3_X2_DIR, 0, 0, false);
-AccelStepper stepper_z(AccelStepper::DRIVER, STR3_Z_STEP, STR3_Z_DIR, 0, 0, false);
+MultiStepper multistepper_y;
+AccelStepper stepper_y1(AccelStepper::DRIVER, STR3_Y1_STEP, STR3_Y1_DIR, 0, 0, false);
+AccelStepper stepper_y2(AccelStepper::DRIVER, STR3_Y2_STEP, STR3_Y2_DIR, 0, 0, false);
+
+AccelStepper stepper_x(AccelStepper::DRIVER, STR3_X_STEP, STR3_X_DIR, 0, 0, false);
 
 // TODO comments
 void setStepperEnablePins() {
-	stepper_x1.setEnablePin(STR3_X1_EN);
-	stepper_x2.setEnablePin(STR3_X2_EN);
-	stepper_z.setEnablePin(STR3_Z_EN);
+	stepper_y1.setEnablePin(STR3_Y1_EN);
+	stepper_y2.setEnablePin(STR3_Y2_EN);
+	stepper_x.setEnablePin(STR3_X_EN);
 }
 
 void invertPins() {
-	stepper_x1.setPinsInverted(true, true, true);
-	stepper_x2.setPinsInverted(true, true, true);
-	stepper_z.setPinsInverted(true, true, true);
+	stepper_y1.setPinsInverted(true, true, true);
+	stepper_y2.setPinsInverted(true, true, true);
+	stepper_x.setPinsInverted(true, true, true);
 }
 
-void createMultiStepperX() {
-	stepper_x.addStepper(stepper_x1);
-	stepper_x.addStepper(stepper_x2);
+void createMultiStepperY() {
+	multistepper_y.addStepper(stepper_y1);
+	multistepper_y.addStepper(stepper_y2);
 }
 
-void setZstepper() {
-	stepper_z.setMaxSpeed(2000);
-	stepper_z.setAcceleration(1400.0);
-	stepper_z.enableOutputs();
+void setYstepper() {
+	multistepper_y.setMaxSpeed(2000);
+	multistepper_y.setAcceleration(1400.0);
+	multistepper_y.enableOutputs();
 }
 
 void setLimitSwitches() {
@@ -46,10 +46,10 @@ void setLimitSwitches() {
 	pinMode(LIM_X_MAX_A, INPUT_PULLUP);
 	pinMode(LIM_X_MAX_B, INPUT_PULLUP);
 
-	pinMode(LIM_Z_MIN_A, INPUT_PULLUP);
-	pinMode(LIM_Z_MIN_B, INPUT_PULLUP);
-	pinMode(LIM_Z_MAX_A, INPUT_PULLUP);
-	pinMode(LIM_Z_MAX_B, INPUT_PULLUP);
+	pinMode(LIM_Y_MIN_A, INPUT_PULLUP);
+	pinMode(LIM_Y_MIN_B, INPUT_PULLUP);
+	pinMode(LIM_Y_MAX_A, INPUT_PULLUP);
+	pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
 }
 
 void blinkLight() {    // TODO this vs blink2?
@@ -85,8 +85,8 @@ When you power on the board or press reset, this function runs once.
 void setup() {
     setStepperEnablePins();
     invertPins();
-    createMultiStepperX();
-    setZstepper();
+    createMultiStepperY();
+    setYstepper();
     setLimitSwitches();
     blinkLight();
     setState();
@@ -94,19 +94,19 @@ void setup() {
     set_status_packet(&packet);
     blinkLight2();
 
-	stepper_z.move(4000);    // TODO why have this?
+	stepper_x.move(4000);    // TODO why have this?
 }
 
 void set_status_packet(packet_send_t* packet) {
-	packet->control_state = state.control_state;  // todo: how can this get changed?
+	packet->control_state = state.control_state;  // todo: how can state get changed?
 	packet->enabled = state.enabled;
 	packet->limit = 0x0;    // todo: update based on limit_switches?
-	packet->stepper_positions[0] = stepper_x1.currentPosition();
-	packet->stepper_positions[1] = stepper_x2.currentPosition();
-	packet->stepper_positions[2] = stepper_z.currentPosition();
-	packet->stepper_directions[0] = speed_to_direction(stepper_x1.speed());
-	packet->stepper_directions[1] = speed_to_direction(stepper_x2.speed());
-	packet->stepper_directions[2] = speed_to_direction(stepper_z.speed());
+	packet->stepper_positions[0] = stepper_y1.currentPosition();
+	packet->stepper_positions[1] = stepper_y2.currentPosition();
+	packet->stepper_positions[2] = stepper_x.currentPosition();
+	packet->stepper_directions[0] = speed_to_direction(stepper_y1.speed());
+	packet->stepper_directions[1] = speed_to_direction(stepper_y2.speed());
+	packet->stepper_directions[2] = speed_to_direction(stepper_x.speed());
 }
 
 void switchLight() {
@@ -126,6 +126,7 @@ void loop() {
 	}
 
 	// update stepper outputs todo
-	stepper_z.run();
+	stepper_x.run();
 }
+
 
