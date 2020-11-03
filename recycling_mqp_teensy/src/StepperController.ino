@@ -2,7 +2,7 @@
 #include <MultiStepper.h>    // Allows control of multiple steppers at once
 #include <AccelStepper.h>
 
-#include "recycling_controller.h"
+#include "StepperController.h"
 #include "pins.h"
 #include "comms.h"
 
@@ -53,15 +53,15 @@ void setLimitSwitches() {
 }
 
 void blinkLight() {    // TODO this vs blink2?
-	pinMode(13, OUTPUT);    // todo: make 13 not a magic number
-	digitalWrite(13, HIGH);
+	pinMode(LED_PIN, OUTPUT);
+	digitalWrite(LED_PIN, HIGH);
 	delay(1000);
 }
 
 void blinkLight2() {
-	digitalWrite(13, LOW);
+	digitalWrite(LED_PIN, LOW);
 	delay(2000);
-	digitalWrite(13, HIGH);
+	digitalWrite(LED_PIN, HIGH);
 }
 
 void setState() {
@@ -79,18 +79,9 @@ int8_t speed_to_direction(float speed) {
 	return 0;
 }
 
-void set_status_packet(packet_send_t* packet) {
-	packet->control_state = state.control_state;
-	packet->enabled = state.enabled;
-	packet->limit = 0x0;    // todo: update based on limit_switches?
-	packet->stepper_positions[0] = stepper_x1.currentPosition();
-	packet->stepper_positions[1] = stepper_x2.currentPosition();
-	packet->stepper_positions[2] = stepper_z.currentPosition();
-	packet->stepper_directions[0] = speed_to_direction(stepper_x1.speed());
-	packet->stepper_directions[1] = speed_to_direction(stepper_x2.speed());
-	packet->stepper_directions[2] = speed_to_direction(stepper_z.speed());
-}
-
+/*
+When you power on the board or press reset, this function runs once.
+*/
 void setup() {
     setStepperEnablePins();
     invertPins();
@@ -106,12 +97,24 @@ void setup() {
 	stepper_z.move(4000);    // TODO why have this?
 }
 
+void set_status_packet(packet_send_t* packet) {
+	packet->control_state = state.control_state;  // todo: how can this get changed?
+	packet->enabled = state.enabled;
+	packet->limit = 0x0;    // todo: update based on limit_switches?
+	packet->stepper_positions[0] = stepper_x1.currentPosition();
+	packet->stepper_positions[1] = stepper_x2.currentPosition();
+	packet->stepper_positions[2] = stepper_z.currentPosition();
+	packet->stepper_directions[0] = speed_to_direction(stepper_x1.speed());
+	packet->stepper_directions[1] = speed_to_direction(stepper_x2.speed());
+	packet->stepper_directions[2] = speed_to_direction(stepper_z.speed());
+}
+
 void switchLight() {
-	digitalWrite(13, !digitalRead(13));
+	digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 }
 
 /**
- * Main loop. Runs repeatedly.
+ * Main loop. Runs repeatedly while the board is on.
  * TODO: receive and execute input
 */
 void loop() {
@@ -119,10 +122,10 @@ void loop() {
 	    switchLight();
 		prev_millis = millis();
 		set_status_packet(&packet);
-		send_packet(&packet);se
+		send_packet(&packet);
 	}
 
-	// update stepper outputs
+	// update stepper outputs todo
 	stepper_z.run();
 }
 
