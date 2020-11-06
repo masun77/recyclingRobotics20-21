@@ -1,4 +1,19 @@
-TESTS: TDD: description -> test: what's the next small change? write a test for it. watch it fail. implement. watch it pass. make sure everything passes.
+TESTS: TDD: description -> test: what's the next small change?
+write a test for it.
+watch it fail.
+implement.
+watch it pass.
+make sure everything passes.
 
-Think about at what levels each of this information and checks should be at, i.e. who's the expert for each piece of info or action 
+Think about at what levels each of this information and checks should be at, i.e. who's the expert for each piece of info or action
+
+Teensy classes:
+1. Stepper controller can tell motors to move to a location and they move there - check
+1a. error checking on location input - check
+2. Stepper controller can tell the motors to move to a location past the limit switches and
+be stopped / receive limit switch triggered info - check
+3. Stepper can send accurate status packet to Pi (Pi can receive...) - check
+4. Stepper can receive and decode packet from Pi  // how to run a file here? do we want to include this rn?
+5. Stepper can move to location specified by Pi packet
+
 
