@@ -18,3 +18,6 @@ be stopped / receive limit switch triggered info - check
 6. "thread" (timedAction and check) for buttonController
 
 
+!!! automated test file to check all these!
+
+
