@@ -282,5 +282,3 @@ void loop() {
 	stepper_x.run();
 	multistepper_y.run();
 }
-
-
