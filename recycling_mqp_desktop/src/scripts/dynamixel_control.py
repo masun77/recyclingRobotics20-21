@@ -9,8 +9,6 @@ import dynamixel_control.dynamixel_sdk as dynamixel
 from dynamixel_control import DynamixelMotor
 from dynamixel_control import config
 
-# todo: clean
-
 # controller port
 CONTROLLER_DEV = "/dev/ttyUSB0"
 
@@ -31,7 +29,7 @@ gripper = None
 # home location
 ARM_A_HOME = 2000
 ARM_B_HOME = 2000
-GRIPPER_HOME = 500    # todo pick home location
+GRIPPER_HOME = 500    # todo choose home location
 
 def initializeMotors():
 	global arm_a, arm_b, gripper
@@ -68,9 +66,9 @@ def initializeMotors():
 
 	return port
 
-def returnHome():
+# Move the arm and gripper to home position
+def home():
 	global arm_a, arm_b, gripper
-	#todo: send message to steppers to return to home position
 	arm_a.set_goal_position(ARM_A_HOME)
 	arm_b.set_goal_position(ARM_B_HOME)
 	gripper.set_goal_position(GRIPPER_HOME)  # todo: does setting the goal position make them move?
@@ -79,6 +77,7 @@ def motor_control():
 	global arm_a, arm_b, gripper
 	port = initializeMotors()
 	rate = rospy.Rate(10)  # 10hz
+	home()
 	try:
 		while not rospy.is_shutdown():  # todo: verify what these positions are (wrt xyz)
 			# publish arm status
@@ -89,7 +88,6 @@ def motor_control():
 			gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
 
 			#todo: id, pickup, and drop off item
-			returnHome()
 
 			rate.sleep()
 	except rospy.ROSInterruptException:
