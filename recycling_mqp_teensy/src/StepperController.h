@@ -6,6 +6,7 @@
 #define CONTROL_ESTOP	0
 #define UPDATE_INTERVAL_MILLISECONDS 200;
 
+// defines the control state
 typedef struct state {
 	uint8_t control_state;
 	uint8_t enabled;
