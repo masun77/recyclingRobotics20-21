@@ -1,9 +1,10 @@
-#ifndef MQP_CONTROLLER_H_
-#define MQP_CONTROLLER_H_
+#ifndef MQP_STEPPER_CONTROLLER_H_
+#define MQP_STEPPER_CONTROLLER_H_
 
 #define CONTROL_RUNNING	2
 #define CONTROL_STOPPED	1
 #define CONTROL_ESTOP	0
+#define UPDATE_INTERVAL_MILLISECONDS 200;
 
 // defines the control state
 typedef struct state {
