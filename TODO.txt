@@ -10,6 +10,7 @@ Think about at what levels each of this information and checks should be at, i.e
 Teensy classes:
 1. Stepper controller can tell motors to move to a location and they move there - check
 1a. error checking on location input - check
+1b. homing sequence works
 2. Stepper controller can tell the motors to move to a location past the limit switches and
 be stopped / receive limit switch triggered info - check
 3. Stepper can send accurate status packet to Pi (Pi can receive...) - check

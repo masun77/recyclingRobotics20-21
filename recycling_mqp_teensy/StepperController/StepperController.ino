@@ -1,5 +1,5 @@
 #include <inttypes.h>
-#include "MultiStepper.h"    // Allows control of multiple steppers at once
+#include "MultiStepper.h"    // Allows control of multiple steppers at once - todo consider elimintating this or writing own
 #include "AccelStepper.h"    // Import into Arduino IDE
 
 #include "StepperController.h"
@@ -13,6 +13,7 @@ float MAX_SPEED = 60000;
 float MIN_SPEED = 10000;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
+bool limitSwitchTriggered = false;
 
 int X_MAX_POS = 5000; // todo
 int X_MIN_POS = 0;
@@ -84,35 +85,67 @@ void setLimitSwitchInterrupts() {
 
 void limXMinAInterrupt() {
     packet.limit = packet.limit | B1;
-    // todo change motor target position and reset sense of location (for all limit interrupts)
+    stepper_x.stop();
+    stepper_x.setCurrentPosition(X_MIN_POS);
+    limitSwitchTriggered = true;
 }
 
 void limXMinBInterrupt() {
     packet.limit = packet.limit | B10;
+    stepper_x.stop();
+    stepper_x.setCurrentPosition(X_MIN_POS);
+    limitSwitchTriggered = true;
 }
 
 void limXMaxAInterrupt() {
     packet.limit = packet.limit | B100;
+    stepper_x.stop();
+    stepper_x.setCurrentPosition(X_MAX_POS);
+    limitSwitchTriggered = true;
 }
 
 void limXMaxBInterrupt() {
     packet.limit = packet.limit | B1000;
+    stepper_x.stop();
+    stepper_x.setCurrentPosition(X_MAX_POS);
+    limitSwitchTriggered = true;
 }
 
 void limYMinAInterrupt() {
     packet.limit = packet.limit | B10000;
+    stepper_y1.stop();
+    stepper_y2.stop();
+    stepper_y1.setCurrentPosition(Y_MIN_POS);
+    stepper_y2.setCurrentPosition(Y_MIN_POS);
+    limitSwitchTriggered = true;
 }
 
 void limYMinBInterrupt() {
     packet.limit = packet.limit | B100000;
+    stepper_y1.stop();
+    stepper_y2.stop();
+    stepper_y1.setCurrentPosition(Y_MIN_POS);
+    stepper_y2.setCurrentPosition(Y_MIN_POS);
+    limitSwitchTriggered = true;
 }
 
 void limYMaxAInterrupt() {
     packet.limit = packet.limit | B1000000;
+    stepper_y1.stop();
+    stepper_y2.stop();
+    stepper_y1.setCurrentPosition(Y_MAX_POS);
+    stepper_y2.setCurrentPosition(Y_MAX_POS);
+    limitSwitchTriggered = true;
 }
 
 void limYMaxBInterrupt() {
     packet.limit = packet.limit | B10000000;
+    stepper_y1.stop();
+    stepper_y2.stop();
+    stepper_x.setCurrentPosition(Y_MAX_POS);
+    stepper_y1.setCurrentPosition(Y_MAX_POS);
+    stepper_y2.setCurrentPosition(Y_MAX_POS);
+    limitSwitchTriggered = true;
 }
 
 // Blink the LED
@@ -168,13 +201,18 @@ void setSpeedManually() {
 // Send steppers to limit switches to set their position
 void home() {
     stepper_x.setSpeed(MIN_SPEED);
-    while (true) {    // todo: this is all a mess. fix pls
+    while (!limitSwitchTriggered) {
         stepper_x.runSpeed();
-        }
+    }
+    limitSwitchTriggered = false;
 
     stepper_y1.setSpeed(MIN_SPEED);
     stepper_y2.setSpeed(MIN_SPEED);
-    multistepper_y.run();
+    while (!limitSwitchTriggered) {
+        stepper_y1.runSpeed();
+        stepper_y2.runSpeed();
+    }
+    limitSwitchTriggered = false;
 }
 
 /*
@@ -205,7 +243,7 @@ void setup() {
 */
 void set_status_packet() {
 	packet.control_state = state.control_state;  // todo: how can state get changed?
-	packet.enabled = state.enabled;  // todo: do something if a limit switch is triggered?
+	packet.enabled = state.enabled;
 	packet.stepper_positions[0] = stepper_y1.currentPosition();
 	packet.stepper_positions[1] = stepper_y2.currentPosition();
 	packet.stepper_positions[2] = stepper_x.currentPosition();
