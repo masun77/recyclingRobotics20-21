@@ -5,9 +5,9 @@
 #define LED_PIN     13
 
 // str3 y1
-#define STR3_Y1_EN		33
-#define STR3_Y1_STEP	31
-#define STR3_Y1_DIR		32
+#define STR3_Y1_EN		35
+#define STR3_Y1_STEP	27
+#define STR3_Y1_DIR		28
 
 // str3 y2
 #define STR3_Y2_EN		34
@@ -15,9 +15,9 @@
 #define STR3_Y2_DIR		30
 
 // str3 x
-#define STR3_X_EN	35
-#define STR3_X_STEP	27
-#define STR3_X_DIR	28
+#define STR3_X_EN	33
+#define STR3_X_STEP	31
+#define STR3_X_DIR	32
 
 // limit switches
 
