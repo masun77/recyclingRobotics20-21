@@ -22,7 +22,7 @@
 // limit switches
 
 // y axis minimum
-#define LIM_Y_MIN_A	2
+#define LIM_Y_MIN_A	2    // rename these or y1 y2 motors
 #define LIM_Y_MIN_B	3
 
 // y axis maxiumum

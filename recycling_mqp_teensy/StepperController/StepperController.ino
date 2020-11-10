@@ -77,20 +77,23 @@ void setLimitSwitches() {
 
 // Attach interrupt function to each limit switch pin
 void setLimitSwitchInterrupts() {
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, LOW);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, LOW);
 }
+
+// todo: button interrupts
 
 void limXMinAInterrupt() {
   packet.limit = packet.limit | B1;
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MIN_POS);
+  // stepper_x.runSpeed  todo - move motor away from limit switch
   limitSwitchTriggered = true;
 }
 
@@ -115,11 +118,11 @@ void limXMaxBInterrupt() {
   limitSwitchTriggered = true;
 }
 
-void limYMinAInterrupt() {
+void limYMinAInterrupt() {    // todo make names correspond nicely
   packet.limit = packet.limit | B10000;
   stepper_y1.stop();
   stepper_y2.stop();
-  stepper_y1.setCurrentPosition(Y_MIN_POS);
+  stepper_y1.setCurrentPosition(Y_MIN_POS);   // todo only stop one
   stepper_y2.setCurrentPosition(Y_MIN_POS);
   limitSwitchTriggered = true;
 }
