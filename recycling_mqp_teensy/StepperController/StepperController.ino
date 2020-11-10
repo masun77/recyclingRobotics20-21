@@ -14,6 +14,7 @@ float MIN_SPEED = 10000;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
 bool limitSwitchTriggered = false;
+int ACCELERATION = 500;
 
 int X_MAX_POS = 5000; // todo
 int X_MIN_POS = 0;
@@ -49,11 +50,14 @@ void createMultiStepperY() {
 }
 
 // Set the speed and acceleration of the Y multistepper
-void setYstepper() {
+void enableSteppers() {
+    stepper_x.setMaxSpeed(maximumSpeed);
+    stepper_x.setAcceleration(ACCELERATION);
+    stepper_x.enableOutputs();
 	stepper_y1.setMaxSpeed(MAX_SPEED);
 	stepper_y2.setMaxSpeed(MAX_SPEED);
-	stepper_y1.setAcceleration(1400.0);
-	stepper_y2.setAcceleration(1400.0);
+	stepper_y1.setAcceleration(ACCELERATION);
+	stepper_y2.setAcceleration(ACCELERATION);
 	stepper_y1.enableOutputs();
 	stepper_y2.enableOutputs();
 }
@@ -223,7 +227,7 @@ void setup() {
     setStepperEnablePins();
     invertPins();
     createMultiStepperY();
-    setYstepper();
+    enableSteppers();
     setLimitSwitches();
 	pinMode(LED_PIN, OUTPUT);
     blinkLight();
@@ -234,7 +238,7 @@ void setup() {
     blinkLight();
 
     // todo: clean this up so there's a builder function for setup/easy to switch between setup strategies
-	home();
+	home();   // todo change to button interrupt
 	setSpeedManually();
 }
 

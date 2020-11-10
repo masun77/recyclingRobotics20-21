@@ -37,4 +37,7 @@
 #define LIM_X_MAX_A	8
 #define LIM_X_MAX_B	9
 
+#define START_BUTTON 23
+#define STOP_BUTTON 22
+
 #endif
