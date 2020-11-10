@@ -9,16 +9,16 @@
 state_t state;
 packet_send_t packet;
 unsigned long prev_millis = 0;
-float MAX_SPEED = 60000;
-float MIN_SPEED = 10000;
+float MAX_SPEED = 1000;
+float MIN_SPEED = 25;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
 bool limitSwitchTriggered = false;
 int ACCELERATION = 500;
 
-int X_MAX_POS = 5000; // todo
+int X_MAX_POS = 1500; // todo
 int X_MIN_POS = 0;
-int Y_MAX_POS = 5000;
+int Y_MAX_POS = 1500;
 int Y_MIN_POS = 0;
 
 MultiStepper multistepper_y;
@@ -30,23 +30,23 @@ AccelStepper stepper_x(AccelStepper::DRIVER, STR3_X_STEP, STR3_X_DIR, 0, 0, fals
 /* Set the enable pin for each stepper motor.
 */
 void setStepperEnablePins() {
-	stepper_y1.setEnablePin(STR3_Y1_EN);
-	stepper_y2.setEnablePin(STR3_Y2_EN);
-	stepper_x.setEnablePin(STR3_X_EN);
+  stepper_y1.setEnablePin(STR3_Y1_EN);
+  stepper_y2.setEnablePin(STR3_Y2_EN);
+  stepper_x.setEnablePin(STR3_X_EN);
 }
 
 /* Invert the pins for each stpper
 */
 void invertPins() {
-	stepper_y1.setPinsInverted(true, true, true);
-	stepper_y2.setPinsInverted(true, true, true);
-	stepper_x.setPinsInverted(true, true, true);
+  stepper_y1.setPinsInverted(true, true, true);
+  stepper_y2.setPinsInverted(true, true, true);
+  stepper_x.setPinsInverted(true, true, true);
 }
 
 // Create the combined stepper of the two Y-axis motors
 void createMultiStepperY() {
-	multistepper_y.addStepper(stepper_y1);
-	multistepper_y.addStepper(stepper_y2);
+  multistepper_y.addStepper(stepper_y1);
+  multistepper_y.addStepper(stepper_y2);
 }
 
 // Set the speed and acceleration of the Y multistepper
@@ -64,99 +64,99 @@ void enableSteppers() {
 
 // Set the limit switches to receive input on the appropriate pins
 void setLimitSwitches() {
-	pinMode(LIM_X_MIN_A, INPUT_PULLUP);
-	pinMode(LIM_X_MIN_B, INPUT_PULLUP);
-	pinMode(LIM_X_MAX_A, INPUT_PULLUP);
-	pinMode(LIM_X_MAX_B, INPUT_PULLUP);
+  pinMode(LIM_X_MIN_A, INPUT_PULLUP);
+  pinMode(LIM_X_MIN_B, INPUT_PULLUP);
+  pinMode(LIM_X_MAX_A, INPUT_PULLUP);
+  pinMode(LIM_X_MAX_B, INPUT_PULLUP);
 
-	pinMode(LIM_Y_MIN_A, INPUT_PULLUP);
-	pinMode(LIM_Y_MIN_B, INPUT_PULLUP);
-	pinMode(LIM_Y_MAX_A, INPUT_PULLUP);
-	pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
+  pinMode(LIM_Y_MIN_A, INPUT_PULLUP);
+  pinMode(LIM_Y_MIN_B, INPUT_PULLUP);
+  pinMode(LIM_Y_MAX_A, INPUT_PULLUP);
+  pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
 }
 
 // Attach interrupt function to each limit switch pin
 void setLimitSwitchInterrupts() {
-	attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, CHANGE);
 }
 
 void limXMinAInterrupt() {
-    packet.limit = packet.limit | B1;
-    stepper_x.stop();
-    stepper_x.setCurrentPosition(X_MIN_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B1;
+  stepper_x.stop();
+  stepper_x.setCurrentPosition(X_MIN_POS);
+  limitSwitchTriggered = true;
 }
 
 void limXMinBInterrupt() {
-    packet.limit = packet.limit | B10;
-    stepper_x.stop();
-    stepper_x.setCurrentPosition(X_MIN_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B10;
+  stepper_x.stop();
+  stepper_x.setCurrentPosition(X_MIN_POS);
+  limitSwitchTriggered = true;
 }
 
 void limXMaxAInterrupt() {
-    packet.limit = packet.limit | B100;
-    stepper_x.stop();
-    stepper_x.setCurrentPosition(X_MAX_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B100;
+  stepper_x.stop();
+  stepper_x.setCurrentPosition(X_MAX_POS);
+  limitSwitchTriggered = true;
 }
 
 void limXMaxBInterrupt() {
-    packet.limit = packet.limit | B1000;
-    stepper_x.stop();
-    stepper_x.setCurrentPosition(X_MAX_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B1000;
+  stepper_x.stop();
+  stepper_x.setCurrentPosition(X_MAX_POS);
+  limitSwitchTriggered = true;
 }
 
 void limYMinAInterrupt() {
-    packet.limit = packet.limit | B10000;
-    stepper_y1.stop();
-    stepper_y2.stop();
-    stepper_y1.setCurrentPosition(Y_MIN_POS);
-    stepper_y2.setCurrentPosition(Y_MIN_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B10000;
+  stepper_y1.stop();
+  stepper_y2.stop();
+  stepper_y1.setCurrentPosition(Y_MIN_POS);
+  stepper_y2.setCurrentPosition(Y_MIN_POS);
+  limitSwitchTriggered = true;
 }
 
 void limYMinBInterrupt() {
-    packet.limit = packet.limit | B100000;
-    stepper_y1.stop();
-    stepper_y2.stop();
-    stepper_y1.setCurrentPosition(Y_MIN_POS);
-    stepper_y2.setCurrentPosition(Y_MIN_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B100000;
+  stepper_y1.stop();
+  stepper_y2.stop();
+  stepper_y1.setCurrentPosition(Y_MIN_POS);
+  stepper_y2.setCurrentPosition(Y_MIN_POS);
+  limitSwitchTriggered = true;
 }
 
 void limYMaxAInterrupt() {
-    packet.limit = packet.limit | B1000000;
-    stepper_y1.stop();
-    stepper_y2.stop();
-    stepper_y1.setCurrentPosition(Y_MAX_POS);
-    stepper_y2.setCurrentPosition(Y_MAX_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B1000000;
+  stepper_y1.stop();
+  stepper_y2.stop();
+  stepper_y1.setCurrentPosition(Y_MAX_POS);
+  stepper_y2.setCurrentPosition(Y_MAX_POS);
+  limitSwitchTriggered = true;
 }
 
 void limYMaxBInterrupt() {
-    packet.limit = packet.limit | B10000000;
-    stepper_y1.stop();
-    stepper_y2.stop();
-    stepper_x.setCurrentPosition(Y_MAX_POS);
-    stepper_y1.setCurrentPosition(Y_MAX_POS);
-    stepper_y2.setCurrentPosition(Y_MAX_POS);
-    limitSwitchTriggered = true;
+  packet.limit = packet.limit | B10000000;
+  stepper_y1.stop();
+  stepper_y2.stop();
+  stepper_x.setCurrentPosition(Y_MAX_POS);
+  stepper_y1.setCurrentPosition(Y_MAX_POS);
+  stepper_y2.setCurrentPosition(Y_MAX_POS);
+  limitSwitchTriggered = true;
 }
 
 // Blink the LED
 void blinkLight() {
-	digitalWrite(LED_PIN, LOW);
-	delay(2000);
-	digitalWrite(LED_PIN, HIGH);
+  digitalWrite(LED_PIN, LOW);
+  delay(2000);
+  digitalWrite(LED_PIN, HIGH);
 }
 
 /* Set the state variable
@@ -164,9 +164,9 @@ void blinkLight() {
     @param enabled true if the steppers should be enabled, false otherwise
 */
 void setState(int control, bool enabled) {
-	state.control_state = control;
-	state.enabled = enabled;
-	state.comms_watchdog = millis();
+  state.control_state = control;
+  state.enabled = enabled;
+  state.comms_watchdog = millis();
 }
 
 /*  Converts a speed to a direction +1 or -1
@@ -174,49 +174,49 @@ void setState(int control, bool enabled) {
     @return 1 if speed > 0; -1 if speed < 0; 0 otherwise
 */
 int8_t speed_to_direction(float speed) {
-	if (speed > 0) {
-		return 1;
-	} else if (speed < 0) {
-		return -1;
-	}
-	return 0;
+  if (speed > 0) {
+    return 1;
+  } else if (speed < 0) {
+    return -1;
+  }
+  return 0;
 }
 
 // Switch the light to off if currently on; on if currently off.
 void switchLight() {
-	digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
 }
 
 void setSpeedManually() {
-    Serial.println("Speed (steps/min to run steppers at:");
-    while (Serial.available() == 0);
-    int desiredSpeed = Serial.parseInt(); //read int or parseFloat for ..float...
-    if (desiredSpeed > MAX_SPEED){
-        stepper_x.setMaxSpeed(MAX_SPEED);
-        Serial.println("Too high! Speed set to default maximum speed.");
-    } else if (desiredSpeed < MIN_SPEED) {
-        stepper_x.setMaxSpeed(MIN_SPEED);
-        Serial.println("Too low! Speed set to default minimum speed.");
-    } else {
-        stepper_x.setMaxSpeed(desiredSpeed);
-    }
+  Serial.println("Speed (steps/min to run steppers at:");
+  while (Serial.available() == 0);
+  int desiredSpeed = Serial.parseInt(); //read int or parseFloat for ..float...
+  if (desiredSpeed > MAX_SPEED) {
+    stepper_x.setMaxSpeed(MAX_SPEED);
+    Serial.println("Too high! Speed set to default maximum speed.");
+  } else if (desiredSpeed < MIN_SPEED) {
+    stepper_x.setMaxSpeed(MIN_SPEED);
+    Serial.println("Too low! Speed set to default minimum speed.");
+  } else {
+    stepper_x.setMaxSpeed(desiredSpeed);
+  }
 }
 
 // Send steppers to limit switches to set their position
 void home() {
-    stepper_x.setSpeed(MIN_SPEED);
-    while (!limitSwitchTriggered) {
-        stepper_x.runSpeed();
-    }
-    limitSwitchTriggered = false;
+  stepper_x.setSpeed(MIN_SPEED);
+  while (!limitSwitchTriggered) {
+    stepper_x.runSpeed();
+  }
+  limitSwitchTriggered = false;
 
-    stepper_y1.setSpeed(MIN_SPEED);
-    stepper_y2.setSpeed(MIN_SPEED);
-    while (!limitSwitchTriggered) {
-        stepper_y1.runSpeed();
-        stepper_y2.runSpeed();
-    }
-    limitSwitchTriggered = false;
+  stepper_y1.setSpeed(MIN_SPEED);
+  stepper_y2.setSpeed(MIN_SPEED);
+  while (!limitSwitchTriggered) {
+    stepper_y1.runSpeed();
+    stepper_y2.runSpeed();
+  }
+  limitSwitchTriggered = false;
 }
 
 /*
@@ -246,33 +246,33 @@ void setup() {
     @ packet the address of the packet to send
 */
 void set_status_packet() {
-	packet.control_state = state.control_state;  // todo: how can state get changed?
-	packet.enabled = state.enabled;
-	packet.stepper_positions[0] = stepper_y1.currentPosition();
-	packet.stepper_positions[1] = stepper_y2.currentPosition();
-	packet.stepper_positions[2] = stepper_x.currentPosition();
-	packet.stepper_directions[0] = speed_to_direction(stepper_y1.speed());
-	packet.stepper_directions[1] = speed_to_direction(stepper_y2.speed());
-	packet.stepper_directions[2] = speed_to_direction(stepper_x.speed());
+  packet.control_state = state.control_state;  // todo: how can state get changed?
+  packet.enabled = state.enabled;
+  packet.stepper_positions[0] = stepper_y1.currentPosition();
+  packet.stepper_positions[1] = stepper_y2.currentPosition();
+  packet.stepper_positions[2] = stepper_x.currentPosition();
+  packet.stepper_directions[0] = speed_to_direction(stepper_y1.speed());
+  packet.stepper_directions[1] = speed_to_direction(stepper_y2.speed());
+  packet.stepper_directions[2] = speed_to_direction(stepper_x.speed());
 }
 
 /* Set the target x position to X_MIN_POS <= position <= X_MAX_POS, or the closest bound
     @param the desired x position
 */
 void setXPos(int position) {
-    long int pos = min(position, X_MAX_POS);
-    pos = max(position, X_MIN_POS);
-    stepper_x.moveTo(pos);
+  long int pos = min(position, X_MAX_POS);
+  pos = max(position, X_MIN_POS);
+  stepper_x.moveTo(pos);
 }
 
 /* Set the target y position to Y_MIN_POS <= position <= Y_MAX_POS, or the closest bound
     @param the desired y position
 */
 void setYPos(int position) {
-    long int pos = min(position, Y_MAX_POS);
-    pos = max(position, Y_MIN_POS);
-    long int positions[] = {pos, pos};
-    multistepper_y.moveTo(positions);
+  long int pos = min(position, Y_MAX_POS);
+  pos = max(position, Y_MIN_POS);
+  long int positions[] = {pos, pos};
+  multistepper_y.moveTo(positions);
 }
 
 /* Prompt for next X location until given int over Serial, then set x target location to the given position.
