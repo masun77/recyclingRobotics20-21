@@ -7,13 +7,13 @@
 #include "Communication.h"
 
 state_t state;
-packet_send_t packet;
+volatile packet_send_t packet;
 unsigned long prev_millis = 0;
 float MAX_SPEED = 1000;
 float MIN_SPEED = 25;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
-bool limitSwitchTriggered = false;
+volatile bool limitSwitchTriggered = false;
 int ACCELERATION = 500;
 
 int X_MAX_POS = 1500; // todo
@@ -90,10 +90,10 @@ void setLimitSwitchInterrupts() {
 // todo: button interrupts
 
 void limXMinAInterrupt() {
-  packet.limit = packet.limit | B1;
+  packet.limit = packet.limit | B1;   // need to reset after not pressed anymore
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MIN_POS);
-  // stepper_x.runSpeed  todo - move motor away from limit switch
+  // stepper_x.runSpeed  todo - move motor away from limit switch - may need to do noInterrupts or run on Change and check whether it's low
   limitSwitchTriggered = true;
 }
 
