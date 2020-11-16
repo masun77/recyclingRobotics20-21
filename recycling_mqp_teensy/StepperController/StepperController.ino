@@ -11,14 +11,17 @@ packet_send_t packet;
 unsigned long prev_millis = 0;
 float MAX_SPEED = 1000;
 float MIN_SPEED = 25;
+int ACCELERATION = 500;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
-bool limitSwitchTriggered = false;
-int ACCELERATION = 500;
+bool xMaxSwitchTriggered = false;
+bool xMinSwitchTriggered = false;
+bool yMaxSwitchTriggered = false;
+bool yMinSwitchTriggered = false;
 
-int X_MAX_POS = 1500; // todo
+int X_MAX_POS = 1500; // TODO: this could also be found in the homing sequence if we wanted it to 
 int X_MIN_POS = 0;
-int Y_MAX_POS = 1500;
+int Y_MAX_POS = 1000; // TODO: this could also be found in the homing sequence if we wanted it to
 int Y_MIN_POS = 0;
 
 MultiStepper multistepper_y;
@@ -51,7 +54,7 @@ void createMultiStepperY() {
 
 // Set the speed and acceleration of the Y multistepper
 void enableSteppers() {
-    stepper_x.setMaxSpeed(maximumSpeed);
+    stepper_x.setMaxSpeed(MAX_SPEED);
     stepper_x.setAcceleration(ACCELERATION);
     stepper_x.enableOutputs();
 	stepper_y1.setMaxSpeed(MAX_SPEED);
@@ -75,44 +78,45 @@ void setLimitSwitches() {
   pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
 }
 
+/// Change to FALLING
 // Attach interrupt function to each limit switch pin
 void setLimitSwitchInterrupts() {
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, FALLING);
 }
 
 void limXMinAInterrupt() {
   packet.limit = packet.limit | B1;
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MIN_POS);
-  limitSwitchTriggered = true;
+  xMinSwitchTriggered = true;
 }
 
 void limXMinBInterrupt() {
   packet.limit = packet.limit | B10;
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MIN_POS);
-  limitSwitchTriggered = true;
+  xMinSwitchTriggered = true;
 }
 
 void limXMaxAInterrupt() {
   packet.limit = packet.limit | B100;
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MAX_POS);
-  limitSwitchTriggered = true;
+  xMaxSwitchTriggered = true;
 }
 
 void limXMaxBInterrupt() {
   packet.limit = packet.limit | B1000;
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MAX_POS);
-  limitSwitchTriggered = true;
+  xMaxSwitchTriggered = true;
 }
 
 void limYMinAInterrupt() {
@@ -121,7 +125,7 @@ void limYMinAInterrupt() {
   stepper_y2.stop();
   stepper_y1.setCurrentPosition(Y_MIN_POS);
   stepper_y2.setCurrentPosition(Y_MIN_POS);
-  limitSwitchTriggered = true;
+  yMinSwitchTriggered = true;
 }
 
 void limYMinBInterrupt() {
@@ -130,7 +134,7 @@ void limYMinBInterrupt() {
   stepper_y2.stop();
   stepper_y1.setCurrentPosition(Y_MIN_POS);
   stepper_y2.setCurrentPosition(Y_MIN_POS);
-  limitSwitchTriggered = true;
+  yMinSwitchTriggered = true;
 }
 
 void limYMaxAInterrupt() {
@@ -139,7 +143,7 @@ void limYMaxAInterrupt() {
   stepper_y2.stop();
   stepper_y1.setCurrentPosition(Y_MAX_POS);
   stepper_y2.setCurrentPosition(Y_MAX_POS);
-  limitSwitchTriggered = true;
+  yMaxSwitchTriggered = true;
 }
 
 void limYMaxBInterrupt() {
@@ -149,7 +153,7 @@ void limYMaxBInterrupt() {
   stepper_x.setCurrentPosition(Y_MAX_POS);
   stepper_y1.setCurrentPosition(Y_MAX_POS);
   stepper_y2.setCurrentPosition(Y_MAX_POS);
-  limitSwitchTriggered = true;
+  yMaxSwitchTriggered = true;
 }
 
 // Blink the LED
@@ -192,31 +196,32 @@ void setSpeedManually() {
   while (Serial.available() == 0);
   int desiredSpeed = Serial.parseInt(); //read int or parseFloat for ..float...
   if (desiredSpeed > MAX_SPEED) {
-    stepper_x.setMaxSpeed(MAX_SPEED);
+    stepper_x.setSpeed(MAX_SPEED);
     Serial.println("Too high! Speed set to default maximum speed.");
   } else if (desiredSpeed < MIN_SPEED) {
-    stepper_x.setMaxSpeed(MIN_SPEED);
+    stepper_x.setSpeed(MIN_SPEED);
     Serial.println("Too low! Speed set to default minimum speed.");
   } else {
-    stepper_x.setMaxSpeed(desiredSpeed);
+    stepper_x.setSpeed(desiredSpeed);
   }
 }
 
 // Send steppers to limit switches to set their position
 void home() {
   stepper_x.setSpeed(MIN_SPEED);
-  while (!limitSwitchTriggered) {
+  while (!xMinSwitchTriggered) {
     stepper_x.runSpeed();
   }
-  limitSwitchTriggered = false;
+  Serial.println(stepper_x.currentPosition());
+  xMinSwitchTriggered = false;
 
   stepper_y1.setSpeed(MIN_SPEED);
   stepper_y2.setSpeed(MIN_SPEED);
-  while (!limitSwitchTriggered) {
+  while (!yMinSwitchTriggered) {
     stepper_y1.runSpeed();
     stepper_y2.runSpeed();
   }
-  limitSwitchTriggered = false;
+  yMinSwitchTriggered = false;
 }
 
 /*
@@ -229,6 +234,7 @@ void setup() {
     createMultiStepperY();
     enableSteppers();
     setLimitSwitches();
+    setLimitSwitchInterrupts();
 	pinMode(LED_PIN, OUTPUT);
     blinkLight();
     setState(CONTROL_STOPPED, false);
