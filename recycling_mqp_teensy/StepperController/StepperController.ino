@@ -7,17 +7,17 @@
 #include "Communication.h"
 
 state_t state;
-packet_send_t packet;
+volatile packet_send_t packet;
 unsigned long prev_millis = 0;
 float MAX_SPEED = 1000;
 float MIN_SPEED = 25;
 int ACCELERATION = 500;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
-bool xMaxSwitchTriggered = false;
-bool xMinSwitchTriggered = false;
-bool yMaxSwitchTriggered = false;
-bool yMinSwitchTriggered = false;
+volatile bool xMaxSwitchTriggered = false;
+volatile bool xMinSwitchTriggered = false;
+volatile bool yMaxSwitchTriggered = false;
+volatile bool yMinSwitchTriggered = false;
 
 int X_MAX_POS = 1500; // TODO: this could also be found in the homing sequence if we wanted it to 
 int X_MIN_POS = 0;
@@ -91,11 +91,14 @@ void setLimitSwitchInterrupts() {
   attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, FALLING);
 }
 
+// todo: button interrupts
+
 void limXMinAInterrupt() {
-  packet.limit = packet.limit | B1;
+  packet.limit = packet.limit | B1;   // need to reset after not pressed anymore
   stepper_x.stop();
   stepper_x.setCurrentPosition(X_MIN_POS);
   xMinSwitchTriggered = true;
+  // stepper_x.runSpeed  todo - move motor away from limit switch - may need to do noInterrupts or run on Change and check whether it's low
 }
 
 void limXMinBInterrupt() {
@@ -119,11 +122,11 @@ void limXMaxBInterrupt() {
   xMaxSwitchTriggered = true;
 }
 
-void limYMinAInterrupt() {
+void limYMinAInterrupt() {    // todo make names correspond nicely
   packet.limit = packet.limit | B10000;
   stepper_y1.stop();
   stepper_y2.stop();
-  stepper_y1.setCurrentPosition(Y_MIN_POS);
+  stepper_y1.setCurrentPosition(Y_MIN_POS);   // todo only stop one
   stepper_y2.setCurrentPosition(Y_MIN_POS);
   yMinSwitchTriggered = true;
 }

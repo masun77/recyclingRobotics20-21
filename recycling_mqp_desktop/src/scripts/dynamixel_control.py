@@ -2,8 +2,8 @@
 
 import rospy
 import serial.serialutil
-from recycling_mqp_messages.msg import *
-from recycling_mqp_messages.srv import *
+# from recycling_mqp_messages.msg import *
+# from recycling_mqp_messages.srv import *
 
 import recycling_mqp_desktop.src.scripts.dynamixel_control.dynamixel_sdk as dynamixel
 from recycling_mqp_desktop.src.scripts.dynamixel_control import DynamixelMotor
@@ -109,34 +109,34 @@ def motor_control():
 	rospy.logwarn("Motor control node safely stopped")
 
 
-def gripper_control(set_open):
-	if set_open == 1:
-		success = gripper.set_goal_position(config.GRIPPER_OPEN_POS)
-	else:
-		success = gripper.set_goal_position(config.GRIPPER_CLOSED_POS)
+# def gripper_control(set_open):
+# 	if set_open == 1:
+# 		success = gripper.set_goal_position(config.GRIPPER_OPEN_POS)
+# 	else:
+# 		success = gripper.set_goal_position(config.GRIPPER_CLOSED_POS)
+#
+# 	return GripperControlResponse(int(success))
 
-	return GripperControlResponse(int(success))
 
-
-def arm_control(position):
-	success = arm_a.set_goal_position(position)
-
-	# if the first didn't fail...
-	if success:
-		success = arm_b.set_goal_position(position)
-
-	return ArmControlResponse(int(success))
+# def arm_control(position):
+# 	success = arm_a.set_goal_position(position)
+#
+# 	# if the first didn't fail...
+# 	if success:
+# 		success = arm_b.set_goal_position(position)
+#
+# 	return ArmControlResponse(int(success))
 
 # Main function. Set publishing and services information, then call motorControl to initialize and run motors
 if __name__ == '__main__':
 	try:
-		gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
-		arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
+		# gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
+		# arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
 
 		rospy.init_node('dynamixel_control', anonymous=False)
 
-		arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
-		gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
+		# arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
+		# gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
 
 		motor_control()
 	except rospy.ROSInterruptException:
