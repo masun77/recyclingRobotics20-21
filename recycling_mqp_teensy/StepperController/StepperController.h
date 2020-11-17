@@ -7,8 +7,8 @@ const int CONTROL_ESTOP = 0;
 
 const int UPDATE_INTERVAL_MILLISECONDS = 200;
 
-const float MAX_SPEED = 1000;    // todo - verify constants
-const float MIN_SPEED = 25;    // todo: does this affect going in the negative direction?
+const float MAX_SPEED = 50;    // todo - verify constants
+const float MIN_SPEED = 40;    // todo: does this affect going in the negative direction?
 const int ACCELERATION = 500;
 const int X_MAX_POS = 1500;
 const int X_MIN_POS = 0;

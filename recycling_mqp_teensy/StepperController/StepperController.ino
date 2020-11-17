@@ -96,26 +96,35 @@ void setLimitSwitchInterrupts() {
 // Mark that this limit switch was triggered
 void limXMinAInterrupt() {    // todo make motor and pin names correspond nicely
   limitSwitchTriggered = limitSwitchTriggered | B1;
+  stepper_x.move(10);
+  stepper_x.run();
 }
 
 // Mark that this limit switch was triggered
 void limXMinBInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10;
+  stepper_x.move(10);
+  stepper_x.run();
 }
 
 // Mark that this limit switch was triggered
 void limXMaxAInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B100;
+  stepper_x.move(-10);
+  stepper_x.run();
 }
 
 // Mark that this limit switch was triggered
 void limXMaxBInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B1000;
+  stepper_x.move(-10);
+  stepper_x.run();
 }
 
 // Mark that this limit switch was triggered
 void limYMinAInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10000;
+  
 }
 
 // Mark that this limit switch was triggered
@@ -172,20 +181,47 @@ int8_t speed_to_direction(float speed) {
 
 // Send the x and y steppers to corresponding limit switches to establish their positions
 void home() {
-    stepper_x.setSpeed(MIN_SPEED);
+
+    Serial.print(B0000);
+    Serial.write(B0000);
+    if(!B0000){
+      if(B1 || B10){
+        stepper_x.move(10);
+        stepper_x.run();
+      }
+      else{
+        stepper_x.move(-10);
+        stepper_x.run();
+      }
+    }
+
+    if(!B00001111){
+      if(B10000 || B100000){
+        stepper_y1.move(10);
+        stepper_y1.run();
+      }
+      else{
+        stepper_y1.move(-10);
+        stepper_y1.run();
+      }
+    }
+    
+    // Setting XMin Position
+    stepper_x.setSpeed(-MIN_SPEED);
     while (!(limitSwitchTriggered & B1111)) {    // todo: which limit switch are we going to?
         stepper_x.runSpeed();
     }
     // todo: move motor one step back, set position
     limitSwitchTriggered = 0;
-
-    stepper_y1.setSpeed(MIN_SPEED);
-    stepper_y2.setSpeed(MIN_SPEED);
-    while (!(limitSwitchTriggered & B11110000)) {    // todo: which lim switch run to and how deal w 2 motors?
-        stepper_y1.runSpeed();
-        stepper_y2.runSpeed();
-        // todo: stop the motor that gets there first. move one step back, set position
-    }
+    stepper_x.setCurrentPosition(0);
+    
+//    stepper_y1.setSpeed(MIN_SPEED);
+//    stepper_y2.setSpeed(MIN_SPEED);
+//    while (!(limitSwitchTriggered & B11110000)) {    // todo: which lim switch run to and how deal w 2 motors?
+//        stepper_y1.runSpeed();
+//        stepper_y2.runSpeed();
+//        // todo: stop the motor that gets there first. move one step back, set position
+//    }
     limitSwitchTriggered = 0;
 }
 
@@ -193,15 +229,16 @@ void setSpeedManually() {
   Serial.println("Speed (steps/min to run steppers at:");
   while (Serial.available() == 0);
   int desiredSpeed = Serial.parseInt(); //read int or parseFloat for ..float...
-  if (desiredSpeed > MAX_SPEED) {
+  if (abs(desiredSpeed) > MAX_SPEED) {
     stepper_x.setSpeed(MAX_SPEED);
     Serial.println("Too high! Speed set to default maximum speed.");
-  } else if (desiredSpeed < MIN_SPEED) {
+  } else if (abs(desiredSpeed) < MIN_SPEED) {
     stepper_x.setSpeed(MIN_SPEED);
     Serial.println("Too low! Speed set to default minimum speed.");
   } else {
     stepper_x.setSpeed(desiredSpeed);
   }
+  Serial.print(stepper_x.speed());
 }
 
 /*
@@ -224,7 +261,7 @@ void setup() {
     blinkLight();    // Hi there
 
 	home();   // todo change to running on start button interrupt
-	setSpeedManually();    // todo: remove
+	//setSpeedManually();    // todo: remove
 }
 
 
