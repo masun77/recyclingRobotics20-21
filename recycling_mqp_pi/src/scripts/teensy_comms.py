@@ -156,7 +156,7 @@ def publishData(stepper_pub, limit_pub, data):
 # @param controlStatusByte: shows if the status byte is okay or not
 # @param status: shows status of robot
 # @return: sets the control status for the robot
-def setAndPublishControlStatus(controlStatusByte, status):
+def setAndPublishControlStatus(controlStatusByte, status, control_pub):
 	if controlStatusByte != control_state[0]:
 		rospy.loginfo("Control state changed to %s" % status)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import rospy
-import serial.serialutil
+# import rospy
+# import serial.serialutil
 # from recycling_mqp_messages.msg import *
 # from recycling_mqp_messages.srv import *
 
