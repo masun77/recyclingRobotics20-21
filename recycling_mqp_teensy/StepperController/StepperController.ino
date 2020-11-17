@@ -1,7 +1,7 @@
 #include <inttypes.h>    // todo add to instructions: this library
 
 #include "MultiStepper.h"    // Allows control of multiple steppers at once (contains 4 functions)
-#include "AccelStepper.h"    
+#include "AccelStepper.h"
 #include "StepperController.h"
 #include "pins.h"
 #include "Communication.h"
@@ -190,18 +190,18 @@ void home() {
 }
 
 void setSpeedManually() {
-    Serial.println("Speed (steps/min to run steppers at:");
-    while (Serial.available() == 0);
-        int desiredSpeed = Serial.parseInt(); //read int or parseFloat for ..float...
-        if (desiredSpeed > MAX_SPEED) {
-            stepper_x.setMaxSpeed(MAX_SPEED);
-            Serial.println("Too high! Speed set to default maximum speed.");
-        } else if (desiredSpeed < MIN_SPEED) {
-            stepper_x.setMaxSpeed(MIN_SPEED);
-            Serial.println("Too low! Speed set to default minimum speed.");
-        } else {
-            stepper_x.setMaxSpeed(desiredSpeed);
-    }
+  Serial.println("Speed (steps/min to run steppers at:");
+  while (Serial.available() == 0);
+  int desiredSpeed = Serial.parseInt(); //read int or parseFloat for ..float...
+  if (desiredSpeed > MAX_SPEED) {
+    stepper_x.setSpeed(MAX_SPEED);
+    Serial.println("Too high! Speed set to default maximum speed.");
+  } else if (desiredSpeed < MIN_SPEED) {
+    stepper_x.setSpeed(MIN_SPEED);
+    Serial.println("Too low! Speed set to default minimum speed.");
+  } else {
+    stepper_x.setSpeed(desiredSpeed);
+  }
 }
 
 /*
@@ -221,7 +221,7 @@ void setup() {
 
     setState(CONTROL_STOPPED, false);
     set_status_packet();
-    blinkLight();    // Hi there 
+    blinkLight();    // Hi there
 
 	home();   // todo change to running on start button interrupt
 	setSpeedManually();    // todo: remove
