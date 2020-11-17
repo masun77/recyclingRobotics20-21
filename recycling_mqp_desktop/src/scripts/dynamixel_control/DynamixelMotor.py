@@ -1,8 +1,8 @@
 
 import rospy
 
-from dynamixel_sdk import robotis_def
-from control_table import XC530W150
+from recycling_mqp_desktop.src.scripts.dynamixel_control.dynamixel_sdk import robotis_def
+from recycling_mqp_desktop.src.scripts.dynamixel_control.control_table import XC530W150
 
 class DynamixelMotor:
 	# motor attributes
