@@ -12,6 +12,19 @@ unsigned long previous_milliseconds = 0;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
 volatile byte limitSwitchTriggered = 0;
+bool startPressed = false;
+bool stopPressed = false;
+bool home_x = true;
+int prev_state = 1;
+int robot_state;
+enum robot_states {
+  WAITING_TO_START,
+  HOMING,
+  LS_HIT_HOMING,
+  MOVING,
+  STOP,
+  SET_HOME
+};
 
 MultiStepper multistepper_y;
 AccelStepper stepper_y1(AccelStepper::DRIVER, STR3_Y1_STEP, STR3_Y1_DIR, 0, 0, false);
@@ -77,6 +90,22 @@ void setLimitSwitches() {
   pinMode(LIM_Y_MIN_B, INPUT_PULLUP);
   pinMode(LIM_Y_MAX_A, INPUT_PULLUP);
   pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
+
+  pinMode(START_BUTTON, INPUT_PULLUP);
+  pinMode(STOP_BUTTON, INPUT_PULLUP);
+}
+
+void setStartStopInterrupts() {
+  attachInterrupt(digitalPinToInterrupt(START_BUTTON), startInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(STOP_BUTTON), stopInterrupt, CHANGE);
+}
+
+void startInterrupt(){
+  startPressed = true;
+}
+
+void stopInterrupt (){
+  stopPressed = true;
 }
 
 // Attach appropriate interrupt function to each limit switch pin
@@ -254,14 +283,16 @@ void setup() {
     enableSteppers();
     setLimitSwitches();
     setLimitSwitchInterrupts();
+    setStartStopInterrupts();
 	Serial.begin(115200);
 
     setState(CONTROL_STOPPED, false);
     set_status_packet();
     blinkLight();    // Hi there
 
-	home();   // todo change to running on start button interrupt
-	//setSpeedManually();    // todo: remove
+  robot_state = WAITING_TO_START;
+//	home();   // todo change to running on start button interrupt
+//	setSpeedManually();    // todo: remove
 }
 
 
@@ -334,20 +365,101 @@ void sendStatus() {
 */
 void loop() {
     // todo: use the state helpfully - e.g. if state is not enabled, disable motors
+    
+//    sendStatus();
+//
+//    if (limitSwitchTriggered > 0) {
+//        // todo: stop the appropriate motor(s)
+//        // move it away from the limit switch
+//        // reset its current position
+//        // what should happen next? stop entirely or continue following instructions?
+//        limitSwitchTriggered = 0;
+//    }
+//
+//    // for now what we're doing here is manually inputting positions
+//    // TODO: receive and execute input from pi/robotController
+//
+//	stepper_x.run();
+//	multistepper_y.run();
 
-    sendStatus();
+  if(stopPressed){
+    robot_state = STOP;
+  }
+  Serial.println(robot_state);
+  switch (robot_state) {
+    case WAITING_TO_START:
+      if (startPressed){
+        startPressed = false;
+        robot_state = HOMING;
+      }
+      break;
+    case HOMING:
+      if(limitSwitchTriggered){
+        robot_state = LS_HIT_HOMING;
+      }
+      
+      if (home_x == true) {
+        // Setting XMin Position
+        stepper_x.setSpeed(-MIN_SPEED);// todo: which limit switch are we going to?
+        stepper_x.runSpeed();  
+      }
+//     else {
+//      stepper_y1.setSpeed(-MIN_SPEED);
+//      stepper_y2.setSpeed(-MIN_SPEED);
+//        stepper_y1.runSpeed();
+//        stepper_y2.runSpeed();
+//        // todo: stop the motor that gets there first. move 5 steps back, set position
+//        robot_state = SET_HOME;
+//    }
+      
+      break;
+    case LS_HIT_HOMING:
+      if (digitalRead(LIM_X_MIN_A) or digitalRead(LIM_X_MIN_B)){
+        stepper_x.stop();
+        stepper_x.move(5);
+        stepper_x.run();
+      } else if (digitalRead(LIM_X_MAX_A) or digitalRead(LIM_X_MAX_B)){
+        stepper_x.stop();
+        stepper_x.move(-5);
+        stepper_x.run();
+      }
+      if (digitalRead(LIM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
+        stepper_x.stop();
+        stepper_x.move(5);
+        stepper_x.run();
+      } else if (digitalRead(LIM_Y_MAX_A) or digitalRead(LIM_Y_MAX_B)){
+        stepper_x.stop();
+        stepper_x.move(-5);
+        stepper_x.run();
+      } 
+      // todo: move motor 5 step back, set position
+      limitSwitchTriggered = 0;
+      
+      prev_state = robot_state;
+      robot_state = MOVING;
+      break;
+    case MOVING:
+      Serial.println(stepper_x.isRunning());
+      if (!stepper_x.isRunning()){
+        robot_state = STOP;
+      }
+      break;
+    case STOP:
+      stepper_x.stop();
+      stepper_y1.stop();
+      stepper_y2.stop();
+      break;
+    case SET_HOME:
+      if(!stepper_x.isRunning() & !stepper_y1.isRunning()){
+        stepper_x.stop();
+        stepper_y1.stop();
+        stepper_y2.stop();
+        stepper_x.setCurrentPosition(0);
+        stepper_y1.setCurrentPosition(0);
+        stepper_y2.setCurrentPosition(0);
+      }
+      break;
+  }
 
-    if (limitSwitchTriggered > 0) {
-        // todo: stop the appropriate motor(s)
-        // move it away from the limit switch
-        // reset its current position
-        // what should happen next? stop entirely or continue following instructions?
-        limitSwitchTriggered = 0;
-    }
-
-    // for now what we're doing here is manually inputting positions
-    // TODO: receive and execute input from pi/robotController
-
-	stepper_x.run();
-	multistepper_y.run();
+ 
 }
