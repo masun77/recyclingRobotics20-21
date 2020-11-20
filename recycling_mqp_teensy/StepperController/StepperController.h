@@ -22,4 +22,14 @@ typedef struct state {
 	uint64_t comms_watchdog;
 } state_t;
 
+enum robot_states {
+  WAITING_TO_START,
+  HOME,
+  LS_HIT_HOMING,
+  MOVING,
+  STOP,
+  SET_HOME,
+  WAITING_FOR_INSTRUCTION
+};
+
 #endif
