@@ -12,6 +12,7 @@ unsigned long previous_milliseconds = 0;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
 volatile byte limitSwitchTriggered = 0;
+bool minLimitSwitchTriggered = false;
 bool startPressed = false;
 bool stopPressed = false;
 bool homing = false;
@@ -90,12 +91,13 @@ void setLimitSwitches() {
 }
 
 void setStartStopInterrupts() {
-  attachInterrupt(digitalPinToInterrupt(START_BUTTON), startInterrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(STOP_BUTTON), stopInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(START_BUTTON), startInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(STOP_BUTTON), stopInterrupt, FALLING);
 }
 
 void startInterrupt(){
   startPressed = true;
+  Serial.println("START");
 }
 
 void stopInterrupt (){
@@ -119,40 +121,36 @@ void setLimitSwitchInterrupts() {
 // Mark that this limit switch was triggered
 void limXMinAInterrupt() {    // todo make motor and pin names correspond nicely
   limitSwitchTriggered = limitSwitchTriggered | B1;
-  stepper_x.move(10);
-  stepper_x.run();
+  minLimitSwitchTriggered = true;
 }
 
 // Mark that this limit switch was triggered
 void limXMinBInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10;
-  stepper_x.move(10);
-  stepper_x.run();
+  minLimitSwitchTriggered = true;
 }
 
 // Mark that this limit switch was triggered
 void limXMaxAInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B100;
-  stepper_x.move(-10);
-  stepper_x.run();
 }
 
 // Mark that this limit switch was triggered
 void limXMaxBInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B1000;
-  stepper_x.move(-10);
-  stepper_x.run();
 }
 
 // Mark that this limit switch was triggered
 void limYMinAInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10000;
+  minLimitSwitchTriggered = true;
   
 }
 
 // Mark that this limit switch was triggered
 void limYMinBInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B100000;
+  minLimitSwitchTriggered = true;
 }
 
 // Mark that this limit switch was triggered
@@ -333,27 +331,52 @@ void loop() {
   if(stopPressed || (limitSwitchTriggered && !homing)){
     robot_state = STOP;
   }
+  Serial.print("ROBOT STATE: ");
   Serial.println(robot_state);
   switch (robot_state) {
     case WAITING_TO_START:
+      homing = true;
       if (startPressed){
         startPressed = false;
-        homing = true;
+        if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
+          Serial.println("NEED TO MOVE X");
+          stepper_x.move(15);
+          stepper_x.run();
+          x_homed = true; 
+          next_state = HOME;
+          robot_state = MOVING;
+          break;
+        } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B)){
+          stepper_x.move(-15);
+          stepper_x.run();
+          robot_state = MOVING;
+        }
+//      if (digitalRead(LIM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
+//        multistepper_y.moveTo(15);
+//        multistepper_y.run();
+//        y1_homed = true;
+//      } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B){
+//        multistepper_y.moveTo(-15);
+//        multistepper_y.run();
+//        robot_state = MOVING;
+//      
         robot_state = HOME;
       }
       break;
     case HOME:
-      if(limitSwitchTriggered){
+      if(minLimitSwitchTriggered){
+        Serial.println("MIN SWITCH HIT");
+        minLimitSwitchTriggered = false;
         robot_state = LS_HIT_HOMING;
         next_state = HOME;
       }
-      
       
       // Setting XMin Position
       if (!x_homed){
       stepper_x.setSpeed(-MIN_SPEED);// todo: which limit switch are we going to?
       stepper_x.runSpeed();
       } 
+      
       // Setting YMin Positions (FIGURE THIS OUT LATER) 
 //      if (!y1_homed){
 //      stepper_y1.setSpeed(-MIN_SPEED);
@@ -361,45 +384,49 @@ void loop() {
 //      stepper_y1.runSpeed();
 //      stepper_y2.runSpeed();
 //      // todo: stop the motor that gets there first. move 5 steps back, set position
-
 //    }
-      next_state = SET_HOME;
-      robot_state = MOVING;      
+      next_state = SET_HOME;   
       break;
     case LS_HIT_HOMING:
-      if (digitalRead(LIM_X_MIN_A) or digitalRead(LIM_X_MIN_B)){
-        stepper_x.stop();
-        stepper_x.move(5);
-        stepper_x.run();
-        x_homed = true;
-      } else if (digitalRead(LIM_X_MAX_A) or digitalRead(LIM_X_MAX_B)){
-        stepper_x.stop();
-        stepper_x.move(-5);
-        stepper_x.run();
+      if (x_homed){
+        robot_state = MOVING;
       }
-      if (digitalRead(LIM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
-        stepper_y1.stop();
-        stepper_y1.move(5);
-        stepper_y1.run();
-        y1_homed = true;
-      } else if (digitalRead(LIM_Y_MAX_A) or digitalRead(LIM_Y_MAX_B)){
-        stepper_y1.stop();
-        stepper_y1.move(-5);
-        stepper_y1.run();
-      } 
+      if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
+        Serial.println("NEED TO MOVE X");
+        stepper_x.stop();
+        stepper_x.move(15);
+        stepper_x.run();
+        x_homed = true; 
+        robot_state = MOVING;
+        break;
+      }
+//      if (digitalRead(LI_YM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
+//        stepper_y1.stop();
+//        stepper_y1.move(15);
+//        stepper_y1.run();
+//        y1_homed = true;
+//      }
       // todo: move motor 5 steps back, set position
+      Serial.print("LIMIT SWITCH: ");
+      Serial.println(limitSwitchTriggered);
       limitSwitchTriggered = 0;
-      robot_state = MOVING;
+      robot_state = HOME;
       break;
     case MOVING:
       // could also use distanceToGo()
-      Serial.println(stepper_x.isRunning());
+      Serial.print("DISTANCE TO GO: ");
+      Serial.println(stepper_x.distanceToGo());
+      stepper_x.run();
       if (homing){
-        if (limitSwitchTriggered){
+        if (minLimitSwitchTriggered){
+          Serial.println("Going to LS_HIT_HOMING");
           robot_state = LS_HIT_HOMING; 
-        }
-        if (!stepper_x.isRunning()){
+        } else if (stepper_x.distanceToGo() == 0){
+          Serial.print("Going to ");
+          Serial.println(robot_state);
           robot_state = next_state;
+        } else {
+          stepper_x.run();
         }
       }
       break;
@@ -413,9 +440,13 @@ void loop() {
       stepper_y1.setCurrentPosition(0);
       stepper_y2.setCurrentPosition(0);
       homing = false;
-      robot_state = WAITING_FOR_INSTRUCTION
+      Serial.print("Current Position: ");
+      Serial.println(stepper_x.currentPosition());
+      robot_state = WAITING_FOR_INSTRUCTION;
       break;
     case WAITING_FOR_INSTRUCTION:
+      // Just wait for now
+      Serial.println("Waiting for Instructions");
       break;
   }
 
