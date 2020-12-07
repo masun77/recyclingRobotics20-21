@@ -17,7 +17,7 @@ bool startPressed = false;
 bool stopPressed = false;
 bool homing = false;
 bool x_homed = false;
-bool y1_homed = false;
+bool y_homed = false;
 int next_state = 1;
 int robot_state;
 
@@ -216,6 +216,45 @@ void setSpeedManually() {
   Serial.print(stepper_x.speed());
 }
 
+void setYSpeed(int desiredSpeed){
+  stepper_y1.setSpeed(desiredSpeed);
+  stepper_y2.setSpeed(desiredSpeed);
+}
+
+void moveToY(long absolute){
+  stepper_y1.moveTo(absolute);
+  stepper_y2.moveTo(absolute);
+}
+
+void moveY(long relative){
+  stepper_y1.move(relative);
+  stepper_y2.move(relative);
+}
+
+void runY(){
+  stepper_y1.run();
+  stepper_y2.run();
+}
+
+void runSpeedY(){
+  stepper_y1.runSpeed();
+  stepper_y2.runSpeed();
+}
+
+boolean reachedYGoal() {
+  if (stepper_y1.distanceToGo() == 0 && stepper_y2.distanceToGo() == 0){ return true; }
+  else { return false;}
+}
+
+void setYsteppers(){
+  stepper_y1.setMaxSpeed(maximumSpeed);
+  stepper_y1.setAcceleration(1000);
+  stepper_y1.enableOutputs();
+  stepper_y2.setMaxSpeed(maximumSpeed);
+  stepper_y2.setAcceleration(1000);
+  stepper_y2.enableOutputs();
+}
+
 /*
 When you power on the board or press reset, this function runs once.
 Sets up the pins, steppers, limit switches, and state. Begins Serial connection.
@@ -311,22 +350,6 @@ void sendStatus() {
 */
 void loop() {
     // todo: use the state helpfully - e.g. if state is not enabled, disable motors
-    
-//    sendStatus();
-//
-//    if (limitSwitchTriggered > 0) {
-//        // todo: stop the appropriate motor(s)
-//        // move it away from the limit switch
-//        // reset its current position
-//        // what should happen next? stop entirely or continue following instructions?
-//        limitSwitchTriggered = 0;
-//    }
-//
-//    // for now what we're doing here is manually inputting positions
-//    // TODO: receive and execute input from pi/robotController
-//
-//	stepper_x.run();
-//	multistepper_y.run();
 
   if(stopPressed || (limitSwitchTriggered && !homing)){
     robot_state = STOP;
@@ -345,21 +368,20 @@ void loop() {
           x_homed = true; 
           next_state = HOME;
           robot_state = MOVING;
-          break;
         } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B)){
           stepper_x.move(-15);
           stepper_x.run();
           robot_state = MOVING;
         }
-//      if (digitalRead(LIM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
-//        multistepper_y.moveTo(15);
-//        multistepper_y.run();
-//        y1_homed = true;
-//      } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B){
-//        multistepper_y.moveTo(-15);
-//        multistepper_y.run();
-//        robot_state = MOVING;
-//      
+        if (digitalRead(LIM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
+          moveY(15);
+          runY();
+          y_homed = true;
+        } else if (!digitalRead(LIM_Y_MAX_A) or !digitalRead(LIM_Y_MAX_B){
+          moveY(-15);
+          runY();
+          robot_state = MOVING;
+        }
         robot_state = HOME;
       }
       break;
@@ -377,14 +399,12 @@ void loop() {
       stepper_x.runSpeed();
       } 
       
-      // Setting YMin Positions (FIGURE THIS OUT LATER) 
-//      if (!y1_homed){
-//      stepper_y1.setSpeed(-MIN_SPEED);
-//      stepper_y2.setSpeed(-MIN_SPEED);
-//      stepper_y1.runSpeed();
-//      stepper_y2.runSpeed();
-//      // todo: stop the motor that gets there first. move 5 steps back, set position
-//    }
+     // Setting YMin Positions (FIGURE THIS OUT LATER) 
+     if (!y_homed){
+       setYSpeed(-MIN_SPEED);
+       runSpeedY();
+     // todo: stop the motor that gets there first. move 5 steps back, set position
+     }
       next_state = SET_HOME;   
       break;
     case LS_HIT_HOMING:
@@ -400,12 +420,19 @@ void loop() {
         robot_state = MOVING;
         break;
       }
-//      if (digitalRead(LI_YM_Y_MIN_A) or digitalRead(LIM_Y_MIN_B)){
-//        stepper_y1.stop();
-//        stepper_y1.move(15);
-//        stepper_y1.run();
-//        y1_homed = true;
-//      }
+      if (!digitalRead(LIM_Y_MIN_A) or !digitalRead(LIM_Y_MIN_B)){
+        stepper_y1.stop();
+        stepper_y2.stop();
+        moveY(15);
+        runY();
+        y_homed = true;
+      }
+      if (y_homed && x_homed){
+        homing = false;
+        next_state = SET_HOME;
+        robot_state = MOVING;
+        break;
+      }
       // todo: move motor 5 steps back, set position
       Serial.print("LIMIT SWITCH: ");
       Serial.println(limitSwitchTriggered);
@@ -421,14 +448,15 @@ void loop() {
         if (minLimitSwitchTriggered){
           Serial.println("Going to LS_HIT_HOMING");
           robot_state = LS_HIT_HOMING; 
-        } else if (stepper_x.distanceToGo() == 0){
-          Serial.print("Going to ");
-          Serial.println(robot_state);
-          robot_state = next_state;
         } else {
           stepper_x.run();
         }
       }
+     if (stepper_x.distanceToGo() == 0 && stepper_y1.distanceToGo() == 0){
+          Serial.print("Going to ");
+          Serial.println(robot_state);
+          robot_state = next_state;
+     }
       break;
     case STOP:
       stepper_x.stop();
@@ -440,6 +468,8 @@ void loop() {
       stepper_y1.setCurrentPosition(0);
       stepper_y2.setCurrentPosition(0);
       homing = false;
+      x_homed = true;
+      y_homed = true;
       Serial.print("Current Position: ");
       Serial.println(stepper_x.currentPosition());
       robot_state = WAITING_FOR_INSTRUCTION;
