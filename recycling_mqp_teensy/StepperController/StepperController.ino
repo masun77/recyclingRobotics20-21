@@ -16,7 +16,7 @@ bool minLimitSwitchTriggered = false;
 bool startPressed = false;
 bool stopPressed = false;
 bool homing = false;
-bool x_homed = true;
+bool x_homed = false;
 bool y_homed = false;
 int next_state = 1;
 int robot_state;
@@ -361,18 +361,18 @@ void loop() {
       homing = true;
       if (startPressed){
         startPressed = false;
-//        if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
-//          Serial.println("NEED TO MOVE X");
-//          stepper_x.move(15);
-//          stepper_x.run();
-//          x_homed = true; 
-//          next_state = HOME;
-//          robot_state = MOVING;
-//        } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B)){
-//          stepper_x.move(-15);
-//          stepper_x.run();
-//          robot_state = MOVING;
-//        }
+        if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
+          Serial.println("NEED TO MOVE X");
+          stepper_x.move(15);
+          stepper_x.run();
+          x_homed = true; 
+          next_state = HOME;
+          robot_state = MOVING;
+        } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B)){
+          stepper_x.move(-15);
+          stepper_x.run();
+          robot_state = MOVING;
+        }
         if (!digitalRead(LIM_Y_MIN_A) or digitalRead(!LIM_Y_MIN_B)){
           moveY(15);
           runY();
@@ -394,10 +394,10 @@ void loop() {
       }
       
       // Setting XMin Position
-//      if (!x_homed){
-//      stepper_x.setSpeed(-MIN_SPEED);// todo: which limit switch are we going to?
-//      stepper_x.runSpeed();
-//      } 
+      if (!x_homed){
+      stepper_x.setSpeed(-MIN_SPEED);// todo: which limit switch are we going to?
+      stepper_x.runSpeed();
+      } 
       
      // Setting YMin Positions (FIGURE THIS OUT LATER) 
      Serial.println(!y_homed);
@@ -413,15 +413,15 @@ void loop() {
       if (x_homed){
         robot_state = MOVING;
       }
-//      if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
-//        Serial.println("NEED TO MOVE X");
-//        stepper_x.stop();
-//        stepper_x.move(15);
-//        stepper_x.run();
-//        x_homed = true; 
-//        robot_state = MOVING;
-//        break;
-//      }
+      if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
+        Serial.println("NEED TO MOVE X");
+        stepper_x.stop();
+        stepper_x.move(15);
+        stepper_x.run();
+        x_homed = true; 
+        robot_state = MOVING;
+        break;
+      }
       if (!digitalRead(LIM_Y_MIN_A) or !digitalRead(LIM_Y_MIN_B)){
         stepper_y1.stop();
         stepper_y2.stop();
