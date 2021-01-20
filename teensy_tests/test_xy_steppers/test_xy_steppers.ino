@@ -178,7 +178,7 @@ void setup() {
   stepper_y1.setCurrentPosition(0);
   stepper_y2.setCurrentPosition(0);
   stepper_x.moveTo(400);
-  moveToY(400);
+  moveToY(200);
   stepper_x.setSpeed(400);
   setYSpeed(400);
   Serial.println(stepper_y1.distanceToGo());
@@ -203,7 +203,7 @@ void loop() {
     Serial.println("Curr Pos:");
     Serial.println(stepper_y1.currentPosition());
     stepper_x.moveTo(400 * (count%2));
-    moveToY(400 * (count%2));
+    moveToY(200 * (count%2));
     Serial.println("Distance to Go:");
     Serial.println(stepper_y1.distanceToGo());
     count++;

@@ -20,6 +20,7 @@ bool x_homed = false;
 bool y_homed = false;
 int next_state = 1;
 int robot_state;
+int goal;
 
 MultiStepper multistepper_y;
 AccelStepper stepper_y1(AccelStepper::DRIVER, STR3_Y1_STEP, STR3_Y1_DIR, 0, 0, false);
@@ -351,7 +352,7 @@ void sendStatus() {
 void loop() {
     // todo: use the state helpfully - e.g. if state is not enabled, disable motors
 
-  if(stopPressed || (limitSwitchTriggered && !homing)){
+  if(stopPressed){
     robot_state = STOP;
   }
   Serial.print("ROBOT STATE: ");
@@ -446,12 +447,14 @@ void loop() {
       Serial.print("DISTANCE TO GO: ");
       Serial.println(stepper_x.distanceToGo());
       stepper_x.run();
+      runY();
       if (homing){
         if (minLimitSwitchTriggered){
           Serial.println("Going to LS_HIT_HOMING");
           robot_state = LS_HIT_HOMING; 
         } else {
           stepper_x.run();
+          runY();
         }
       }
      if (stepper_x.distanceToGo() == 0 && stepper_y1.distanceToGo() == 0){
@@ -469,17 +472,27 @@ void loop() {
       stepper_x.setCurrentPosition(0);
       stepper_y1.setCurrentPosition(0);
       stepper_y2.setCurrentPosition(0);
-      homing = false;
+      stepper_x.stop();
+      stepper_y1.stop();
+      stepper_y2.stop();
       x_homed = true;
       y_homed = true;
-      Serial.print("Current Position: ");
-      Serial.println(stepper_x.currentPosition());
       robot_state = WAITING_FOR_INSTRUCTION;
       break;
     case WAITING_FOR_INSTRUCTION:
       // Just wait for now
-      Serial.println("Waiting for Instructions");
-      break;
+      homing = false;
+//      Serial.println("Where to move?");
+//      while (Serial.available() == 0) {
+//      // Wait for User to Input Data
+//      }
+//      goal = Serial.parseInt();
+      stepper_x.moveTo(1000);
+      stepper_x.run();
+      moveToY(400);
+      runY();
+      next_state = WAITING_FOR_INSTRUCTION;
+      robot_state = MOVING;
   }
 
  
