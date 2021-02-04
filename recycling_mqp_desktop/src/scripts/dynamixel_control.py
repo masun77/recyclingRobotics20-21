@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# import rospy
-# import serial.serialutil
+import rospy
+import serial.serialutil
 # from recycling_mqp_messages.msg import *
 # from recycling_mqp_messages.srv import *
 
@@ -132,6 +132,10 @@ if __name__ == '__main__':
 	try:
 		# gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
 		# arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
+		# Publish
+		# call home
+		# call motorControl
+		# run motors
 
 		rospy.init_node('dynamixel_control', anonymous=False)
 

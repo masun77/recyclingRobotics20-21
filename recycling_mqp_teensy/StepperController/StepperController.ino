@@ -484,22 +484,16 @@ void loop() {
       limitSwitchTriggered = B00000000;
       Serial.write(limitSwitchTriggered);
       homing = false;
-      stepper_x.moveTo(1000);
-      stepper_x.run();
-//      moveToY(400);
-//      runY();
-      multistepper_y.moveTo(400);
-      multistepper_y.run();
 
       Serial.println("Position for X Direction?")
-      while(Serial.available() = 0){
+      while(Serial.available() == 0){
       }
       xDir = Serial.parseInt();
       Serial.println("The X stepper will move:")
       Serial.println(xDir);
 
       Serial.println("Position for Y Direction?")
-      while(Serial.available() = 0){
+      while(Serial.available() == 0){
       }
       yDir = Serial.parseInt();
       Serial.println("The Y stepper will move:")
