@@ -17,7 +17,7 @@ state_t state;
 packet_send_t packet;
 unsigned long prev_millis = 0;
 int updateIntervalMilliseconds = 250;
-float maximumSpeed = 2000;
+float maximumSpeed = 400;
 float minimumSpeed = 25;
 bool limitSwitchTriggered;
 int count = 1;
@@ -166,7 +166,7 @@ void setup() {
   invertPins();
   createMultiStepperY();
   setXstepper();
-  setYsteppers();
+//  setYsteppers();/
   setLimitSwitches();
   blinkLight();
   setState();
@@ -174,13 +174,14 @@ void setup() {
   set_status_packet(&packet);
   blinkLight2();
 
-
-  stepper_y1.setCurrentPosition(0);
-  stepper_y2.setCurrentPosition(0);
-  moveToY(400);
-  setYSpeed(400);
-  Serial.println(stepper_y1.distanceToGo());
-  Serial.println(stepper_y2.distanceToGo());
+//
+//  stepper_y1.setCurrentPosition(0);
+//  stepper_y2.setCurrentPosition(0);
+//  multistepper_y.moveTo(400);/
+//  moveToY(400);//
+//  setYSpeed(400);
+//  Serial.println(stepper_y1.distanceToGo());
+//  Serial.println(stepper_y2.distanceToGo());
   
 }
   
@@ -194,16 +195,26 @@ void loop() {
 //    send_packet(&packet);
   }
 
-  runY();
+// multistepper_y.run();/
+//  runY();
   Serial.println(stepper_y1.currentPosition());
-  if (reachedYGoal()) {
+//  i/f (reachedYGoal()) {
     Serial.println("Curr Pos:");
     Serial.println(stepper_y1.currentPosition());
-    moveToY(400 * (count%2));
+    if ((count % 2) == 0){
+      multistepper_y.moveTo(0);  
+      Serial.println("Moving to 0");
+    } else {
+      multistepper_y.moveTo(400);  
+      Serial.println("Moving to 400");
+    }
+    
+//    moveToY/(400 * (count%2));
     Serial.println("Distance to Go:");
     Serial.println(stepper_y1.distanceToGo());
+    multistepper_y.runSpeedToPosition();
     count++;
     delay(250);
-  }
+//  }/
   
 }

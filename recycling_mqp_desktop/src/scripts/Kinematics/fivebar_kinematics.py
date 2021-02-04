@@ -1,5 +1,4 @@
 import numpy as np
-import scipy.linalg as la
 import math
 
 # should change this to l1 and l2 to match the ref doc
@@ -39,4 +38,4 @@ def calc_torque_j1(theta, x_force, y_force):
     Q1 = -x_force*a1*math.sin(ang1) + y_force*a2*math.cos(ang1)
     return Q1
 
-# print(fwkin(0.5))
+print(fwkin(0.5))

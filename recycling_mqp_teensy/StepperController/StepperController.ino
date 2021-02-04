@@ -11,7 +11,7 @@ volatile packet_send_t packet;
 unsigned long previous_milliseconds = 0;
 bool receivedXPosition = true;
 bool receivedYPosition = true;
-volatile byte limitSwitchTriggered = 0;
+volatile byte limitSwitchTriggered = B00000000;
 bool minLimitSwitchTriggered = false;
 bool startPressed = false;
 bool stopPressed = false;
@@ -352,7 +352,7 @@ void sendStatus() {
 void loop() {
     // todo: use the state helpfully - e.g. if state is not enabled, disable motors
 
-  if(stopPressed){
+  if(stopPressed || (limitSwitchTriggered && !homing)){
     robot_state = STOP;
   }
   Serial.print("ROBOT STATE: ");
@@ -362,7 +362,7 @@ void loop() {
       homing = true;
       if (startPressed){
         startPressed = false;
-        if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
+        if ((!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)) && !x_homed){
           Serial.println("NEED TO MOVE X");
           stepper_x.move(15);
           stepper_x.run();
@@ -374,7 +374,7 @@ void loop() {
           stepper_x.run();
           robot_state = MOVING;
         }
-        if (!digitalRead(LIM_Y_MIN_A) or digitalRead(!LIM_Y_MIN_B)){
+        if ((!digitalRead(LIM_Y_MIN_A) or digitalRead(!LIM_Y_MIN_B)) && !y_homed){
           moveY(15);
           runY();
           y_homed = true;
@@ -396,8 +396,8 @@ void loop() {
       
       // Setting XMin Position
       if (!x_homed){
-      stepper_x.setSpeed(-MIN_SPEED);// todo: which limit switch are we going to?
-      stepper_x.runSpeed();
+        stepper_x.setSpeed(-MIN_SPEED);// todo: which limit switch are we going to?
+        stepper_x.runSpeed();
       } 
       
      // Setting YMin Positions (FIGURE THIS OUT LATER) 
@@ -411,10 +411,7 @@ void loop() {
       next_state = SET_HOME;   
       break;
     case LS_HIT_HOMING:
-      if (x_homed){
-        robot_state = MOVING;
-      }
-      if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)){
+      if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B) && !x_homed){
         Serial.println("NEED TO MOVE X");
         stepper_x.stop();
         stepper_x.move(15);
@@ -423,15 +420,16 @@ void loop() {
         robot_state = MOVING;
         break;
       }
-      if (!digitalRead(LIM_Y_MIN_A) or !digitalRead(LIM_Y_MIN_B)){
+      if (!digitalRead(LIM_Y_MIN_A) or !digitalRead(LIM_Y_MIN_B) && !y_homed){
         stepper_y1.stop();
         stepper_y2.stop();
         moveY(15);
         runY();
         y_homed = true;
+        robot_state = MOVING;
+        break;
       }
       if (y_homed && x_homed){
-        homing = false;
         next_state = SET_HOME;
         robot_state = MOVING;
         break;
@@ -439,7 +437,8 @@ void loop() {
       // todo: move motor 5 steps back, set position
       Serial.print("LIMIT SWITCH: ");
       Serial.println(limitSwitchTriggered);
-      limitSwitchTriggered = 0;
+      minLimitSwitchTriggered = false;
+      limitSwitchTriggered = B00000000;
       robot_state = HOME;
       break;
     case MOVING:
@@ -467,6 +466,7 @@ void loop() {
       stepper_x.stop();
       stepper_y1.stop();
       stepper_y2.stop();
+      robot_state = WAITING_TO_START;
       break;
     case SET_HOME:
       stepper_x.setCurrentPosition(0);
@@ -481,16 +481,15 @@ void loop() {
       break;
     case WAITING_FOR_INSTRUCTION:
       // Just wait for now
+      limitSwitchTriggered = B00000000;
+      Serial.write(limitSwitchTriggered);
       homing = false;
-//      Serial.println("Where to move?");
-//      while (Serial.available() == 0) {
-//      // Wait for User to Input Data
-//      }
-//      goal = Serial.parseInt();
       stepper_x.moveTo(1000);
       stepper_x.run();
-      moveToY(400);
-      runY();
+//      moveToY(400);
+//      runY();
+      multistepper_y.moveTo(400);
+      multistepper_y.run();
       next_state = WAITING_FOR_INSTRUCTION;
       robot_state = MOVING;
   }

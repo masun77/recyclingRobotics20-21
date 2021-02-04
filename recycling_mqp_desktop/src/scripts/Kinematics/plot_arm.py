@@ -10,12 +10,16 @@ a2 = 146.605
 def plot_robot(theta):
     [y_end, ang2] = kin.fwkin(theta)
     joint_x = a1*math.cos(math.pi - theta)
-    joint_y = a1*math.cos(math.pi - theta)
-    plt.plot([0, joint_x], [0, joint_y,])
+    joint_y = a1*math.sin(math.pi - theta)
+    side2_joint_x = -joint_x + 2*x_end
+
+    plt.plot([0, joint_x], [0, joint_y])
+    plt.plot([joint_x, x_end], [joint_y, y_end], 'r')
+    plt.plot([2*x_end, side2_joint_x], [0, joint_y])
+    plt.plot([side2_joint_x, x_end], [joint_y, y_end])
+    plt.scatter([0, joint_x, x_end, 2*x_end, side2_joint_x], [0, joint_y, y_end, 0, joint_y], color='black')
+    print([0, joint_x, x_end], [0, joint_y, y_end])
     plt.show()
 
     
-# plot_robot(0.5)
-x = np.linspace(0, 20, 100)  # Create a list of evenly-spaced numbers over the range
-plt.plot(x, np.sin(x))       # Plot the sine of each x point
-plt.show() 
+plot_robot(0.5)
