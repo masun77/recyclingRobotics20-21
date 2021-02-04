@@ -485,6 +485,11 @@ void loop() {
       Serial.write(limitSwitchTriggered);
       homing = false;
 
+      //possible if statements to defer between MV and Manual???
+      //ask for input from user and if they input MV then MV communications
+      // if they input M then manual inputs will be required next
+      // if it's not either of those ask them to do it again
+
       Serial.println("Position for X Direction?")
       while(Serial.available() == 0){
       }
