@@ -490,6 +490,26 @@ void loop() {
 //      runY();
       multistepper_y.moveTo(400);
       multistepper_y.run();
+
+      Serial.println("Position for X Direction?")
+      while(Serial.available() = 0){
+      }
+      xDir = Serial.parseInt();
+      Serial.println("The X stepper will move:")
+      Serial.println(xDir);
+
+      Serial.println("Position for Y Direction?")
+      while(Serial.available() = 0){
+      }
+      yDir = Serial.parseInt();
+      Serial.println("The Y stepper will move:")
+      Serial.println(yDir);
+
+      stepper_x.moveTo(xDir);
+      stepper_x.run();
+      multistepper_y.moveTo(yDir);
+      multistepper_y.run();
+
       next_state = WAITING_FOR_INSTRUCTION;
       robot_state = MOVING;
   }
