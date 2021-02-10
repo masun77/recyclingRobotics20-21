@@ -351,7 +351,8 @@ void sendStatus() {
 */
 void loop() {
     // todo: use the state helpfully - e.g. if state is not enabled, disable motors
-
+  int xDir;
+  int yDir;
   if(stopPressed || (limitSwitchTriggered && !homing)){
     robot_state = STOP;
   }
@@ -490,23 +491,77 @@ void loop() {
       // if they input M then manual inputs will be required next
       // if it's not either of those ask them to do it again
 
-      Serial.println("Position for X Direction?")
-      while(Serial.available() == 0){
-      }
-      xDir = Serial.parseInt();
-      Serial.println("The X stepper will move:")
-      Serial.println(xDir);
+//      Serial.println("Position for X Direction?");
+//      while(Serial.available() == 0){
+//      }
+//      xDir = Serial.parseInt();
+//      Serial.println("The X stepper will move:");
+//      Serial.println(xDir);
+//
+//      Serial.println("Position for Y Direction?");
+//      while(Serial.available() == 0){
+//      }
+//      yDir = Serial.parseInt();
+//      Serial.println("The Y stepper will move:");
+//      Serial.println(yDir);
 
-      Serial.println("Position for Y Direction?")
-      while(Serial.available() == 0){
+      Serial.println("Position for X and Y: XXXX,YYY");
+      while (Serial.available() < 8) {
+        // Do nothing
       }
-      yDir = Serial.parseInt();
-      Serial.println("The Y stepper will move:")
-      Serial.println(yDir);
+      String positionString = Serial.readString();
+//      char charArr[8];
+//      positionString.toCharArray(charArr, 8);
+//      String xString = charArr[0] + charArr[1] + charArr[2] + charArr[3];
+//      String yString = charArr[5] + charArr[6] + charArr[7];
+////      char xArray[4]= {charArr[0], charArr[1], charArr[2], charArr[3]};
+////      char yArray[3]= {charArr[5], charArr[6], charArr[7]};
+////      int xPos = xArray.atoi();
+//      int xPos = xString.toInt();
+//      int yPos = yString.toInt();
+//      Serial.println(positionString);
+//      Serial.println(xString);
+//      Serial.println(yString);
+//      Serial.println(xPos);
+//      Serial.println(yPos);
+      char charArr[8];
+      char xChar;
+      char yChar;
+      String xString;
+      String yString;
+      int xPos;
+      int yPos;
+      while(Serial.available()){
+        delay(50);  
+        xChar = Serial.read();
+        xString += xChar;
+      }
+//      for (int i = 0; i < 8; i++){
+//        if (i < 4) {
+//          xChar = Serial.read();
+//          xString += xChar;
+//        }
+//        if (i > 4) {
+//          yChar = Serial.read();
+//          yString += yChar;
+//        }
+//      }
 
-      stepper_x.moveTo(xDir);
+      xString.toCharArray(charArr, 8);
+      xString = charArr[0] + charArr[1] + charArr[2] + charArr[3];
+      yString = charArr[5] + charArr[6] + charArr[7];
+      xPos = xString.toInt();
+      yPos = yString.toInt();
+      Serial.println(xString);
+      Serial.println(yString);
+      Serial.println(xPos);
+      Serial.println(yPos);
+
+      
+
+      stepper_x.moveTo(xPos);
       stepper_x.run();
-      multistepper_y.moveTo(yDir);
+      multistepper_y.moveTo(yPos);
       multistepper_y.run();
 
       next_state = WAITING_FOR_INSTRUCTION;
