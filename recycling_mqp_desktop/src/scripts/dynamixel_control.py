@@ -27,9 +27,9 @@ arm_b = None
 gripper = None
 
 # home location
-ARM_A_HOME = 2000
-ARM_B_HOME = 2000
-GRIPPER_HOME = 500    # todo choose home location
+ARM_A_HOME = 1300
+ARM_B_HOME = 2800
+GRIPPER_HOME = 2000    # todo choose home location
 
 # Connect to the motors if possible (otherwise exit) and enable torque
 def initializeMotors():
