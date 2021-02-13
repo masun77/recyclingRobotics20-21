@@ -22,6 +22,16 @@ int next_state = 1;
 int robot_state;
 int goal;
 
+const byte numChars = 32;
+char receivedChars[numChars];
+char tempChars[numChars];        // temporary array for use when parsing
+
+      // variables to hold the parsed data
+int xInt = 0;
+int yInt = 0;
+
+boolean newData = false;
+
 MultiStepper multistepper_y;
 AccelStepper stepper_y1(AccelStepper::DRIVER, STR3_Y1_STEP, STR3_Y1_DIR, 0, 0, false);
 AccelStepper stepper_y2(AccelStepper::DRIVER, STR3_Y2_STEP, STR3_Y2_DIR, 0, 0, false);
@@ -256,6 +266,57 @@ void setYsteppers(){
   stepper_y2.enableOutputs();
 }
 
+void recvWithStartEndMarkers() {
+    static boolean recvInProgress = false;
+    static byte ndx = 0;
+    char startMarker = '<';
+    char endMarker = '>';
+    char rc;
+
+    while (Serial.available() > 0 && newData == false) {
+        rc = Serial.read();
+
+        if (recvInProgress == true) {
+            if (rc != endMarker) {
+                receivedChars[ndx] = rc;
+                ndx++;
+                if (ndx >= numChars) {
+                    ndx = numChars - 1;
+                }
+            }
+            else {
+                receivedChars[ndx] = '\0'; // terminate the string
+                recvInProgress = false;
+                ndx = 0;
+                newData = true;
+            }
+        }
+
+        else if (rc == startMarker) {
+            recvInProgress = true;
+        }
+    }
+}
+
+void parseData() {      // split the data into its parts
+
+    char * strtokIndx; // this is used by strtok() as an index
+
+    strtokIndx = strtok(tempChars,",");      // get the first part - the string
+    xInt = atoi(strtokIndx);     // convert this part to an integer
+ 
+    strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
+    yInt = atoi(strtokIndx);     // convert this part to an integer
+
+}
+
+void showParsedData() {
+    Serial.print("xInt ");
+    Serial.println(xInt);
+    Serial.print("yInt ");
+    Serial.println(yInt);
+}
+
 /*
 When you power on the board or press reset, this function runs once.
 Sets up the pins, steppers, limit switches, and state. Begins Serial connection.
@@ -445,7 +506,8 @@ void loop() {
     case MOVING:
       // could also use distanceToGo()
       Serial.print("DISTANCE TO GO: ");
-      Serial.println(stepper_x.distanceToGo());
+      Serial.println(stepper_y1.distanceToGo());
+      Serial.println(stepper_y2.distanceToGo());
       stepper_x.run();
       runY();
       if (homing){
@@ -491,81 +553,26 @@ void loop() {
       // if they input M then manual inputs will be required next
       // if it's not either of those ask them to do it again
 
-//      Serial.println("Position for X Direction?");
-//      while(Serial.available() == 0){
-//      }
-//      xDir = Serial.parseInt();
-//      Serial.println("The X stepper will move:");
-//      Serial.println(xDir);
-//
-//      Serial.println("Position for Y Direction?");
-//      while(Serial.available() == 0){
-//      }
-//      yDir = Serial.parseInt();
-//      Serial.println("The Y stepper will move:");
-//      Serial.println(yDir);
-
-      Serial.println("Position for X and Y: XXXX,YYY");
-      while (Serial.available() < 8) {
-        // Do nothing
+      while(1) {
+        recvWithStartEndMarkers();
+        if (newData == true) {
+          strcpy(tempChars, receivedChars);
+              // this temporary copy is necessary to protect the original data
+              //   because strtok() used in parseData() replaces the commas with \0
+          parseData();
+          showParsedData();
+          newData = false;
+          break;
+        }
       }
-      String positionString = Serial.readString();
-//      char charArr[8];
-//      positionString.toCharArray(charArr, 8);
-//      String xString = charArr[0] + charArr[1] + charArr[2] + charArr[3];
-//      String yString = charArr[5] + charArr[6] + charArr[7];
-////      char xArray[4]= {charArr[0], charArr[1], charArr[2], charArr[3]};
-////      char yArray[3]= {charArr[5], charArr[6], charArr[7]};
-////      int xPos = xArray.atoi();
-//      int xPos = xString.toInt();
-//      int yPos = yString.toInt();
-//      Serial.println(positionString);
-//      Serial.println(xString);
-//      Serial.println(yString);
-//      Serial.println(xPos);
-//      Serial.println(yPos);
-      char charArr[8];
-      char xChar;
-      char yChar;
-      String xString;
-      String yString;
-      int xPos;
-      int yPos;
-      while(Serial.available()){
-        delay(50);  
-        xChar = Serial.read();
-        xString += xChar;
-      }
-//      for (int i = 0; i < 8; i++){
-//        if (i < 4) {
-//          xChar = Serial.read();
-//          xString += xChar;
-//        }
-//        if (i > 4) {
-//          yChar = Serial.read();
-//          yString += yChar;
-//        }
-//      }
-
-      xString.toCharArray(charArr, 8);
-      xString = charArr[0] + charArr[1] + charArr[2] + charArr[3];
-      yString = charArr[5] + charArr[6] + charArr[7];
-      xPos = xString.toInt();
-      yPos = yString.toInt();
-      Serial.println(xString);
-      Serial.println(yString);
-      Serial.println(xPos);
-      Serial.println(yPos);
-
-      
-
-      stepper_x.moveTo(xPos);
+      stepper_x.moveTo(xInt);
       stepper_x.run();
-      multistepper_y.moveTo(yPos);
-      multistepper_y.run();
+      moveToY(yInt);
+      runY();
 
       next_state = WAITING_FOR_INSTRUCTION;
       robot_state = MOVING;
+      break;
   }
 
  
