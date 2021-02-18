@@ -29,7 +29,12 @@ gripper = None
 # home location
 ARM_A_HOME = 1300
 ARM_B_HOME = 2800
-GRIPPER_HOME = 2000    # todo choose home location
+GRIPPER_HOME = 2000
+
+# pick up position
+ARM_A_PICK = 1900
+ARM_B_PICK = 2200
+GRIPPER_PICK = 1360
 
 # Connect to the motors if possible (otherwise exit) and enable torque
 def initializeMotors():
@@ -73,6 +78,13 @@ def home():
 	arm_b.set_goal_position(ARM_B_HOME)
 	gripper.set_goal_position(GRIPPER_HOME)
 
+def pick_up():
+	global arm_a, arm_b, gripper
+	arm_a.set_goal_position(ARM_A_PICK)
+	arm_b.set_goal_position(ARM_B_PICK)
+	gripper.set_goal_position(GRIPPER_PICK)
+
+
 # Initialize motors and home arm/gripper.
 # While ROS is running, publish arm position...
 def motor_control():
@@ -90,6 +102,9 @@ def motor_control():
 			gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
 
 			#todo: id, pickup, and drop off item
+			home()
+			pick_up()
+			home()
 
 			rate.sleep()
 	except rospy.ROSInterruptException:
@@ -136,6 +151,11 @@ if __name__ == '__main__':
 		# call home
 		# call motorControl
 		# run motors
+
+		gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
+		arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
+
+		home()
 
 		rospy.init_node('dynamixel_control', anonymous=False)
 
