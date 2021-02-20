@@ -2,8 +2,8 @@
 
 import rospy
 import serial.serialutil
-# from recycling_mqp_messages.msg import *
-# from recycling_mqp_messages.srv import *
+from recycling_mqp_messages.msg import *
+from recycling_mqp_messages.srv import *
 
 import recycling_mqp_desktop.src.scripts.dynamixel_control.dynamixel_sdk as dynamixel
 from recycling_mqp_desktop.src.scripts.dynamixel_control import DynamixelMotor
@@ -151,9 +151,7 @@ if __name__ == '__main__':
 		# call home
 		# call motorControl
 		# run motors
-
-		gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
-		arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
+		initializeMotors()
 
 		home()
 

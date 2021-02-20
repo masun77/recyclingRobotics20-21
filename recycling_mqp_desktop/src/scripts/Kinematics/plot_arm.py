@@ -22,4 +22,4 @@ def plot_robot(theta):
     plt.show()
 
     
-plot_robot(0.5)
+plot_robot(0.25)
