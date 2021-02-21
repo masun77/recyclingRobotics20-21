@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import time
 
 import rospy
 import serial.serialutil
@@ -42,7 +43,8 @@ def initializeMotors():
 	rospy.loginfo("Initializing Dynamixel motors...")
 
 	# create port for U2D2
-	port = dynamixel.PortHandler(CONTROLLER_DEV.encode('utf-8'))
+	# port = dynamixel.PortHandler(CONTROLLER_DEV.encode('utf-8'))
+	port = dynamixel.PortHandler(CONTROLLER_DEV)
 
 	# attempt to connect to U2D2
 	try:
@@ -152,8 +154,10 @@ if __name__ == '__main__':
 		# call motorControl
 		# run motors
 		initializeMotors()
-
+		# time.sleep(2)
 		home()
+		# time.sleep(2)
+		pick_up()
 
 		rospy.init_node('dynamixel_control', anonymous=False)
 
