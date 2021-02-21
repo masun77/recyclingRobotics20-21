@@ -171,7 +171,6 @@ if __name__ == '__main__':
 		time.sleep(2)
 		drop_off()
 		time.sleep(2)
-
 		pick_up()
 
 		rospy.init_node('dynamixel_control', anonymous=False)
@@ -179,6 +178,5 @@ if __name__ == '__main__':
 		# arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
 		# gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
 
-		motor_control()
 	except rospy.ROSInterruptException:
 		pass
