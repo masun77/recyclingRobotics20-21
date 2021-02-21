@@ -108,8 +108,11 @@ def motor_control():
 			gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
 
 			#todo: id, pickup, and drop off item
+			time.sleep(2)
 			home()
+			time.sleep(2)
 			pick_up()
+			time.sleep(2)
 			drop_off()
 
 			rate.sleep()
@@ -157,14 +160,19 @@ if __name__ == '__main__':
 		# call home
 		# call motorControl
 		# run motors
-		initializeMotors()
-		# time.sleep(2)
-		home()
-		# time.sleep(2)
-		pick_up()
-		# time.sleep(3)
-		drop_off()
+		# rospy.init_node('dynamixel_control', anonymous=False)
+		# motor_control()
 
+		initializeMotors()
+		time.sleep(2)
+		home()
+		time.sleep(2)
+		pick_up()
+		time.sleep(2)
+		drop_off()
+		time.sleep(2)
+
+		pick_up()
 
 		rospy.init_node('dynamixel_control', anonymous=False)
 
