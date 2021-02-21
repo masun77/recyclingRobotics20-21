@@ -86,6 +86,11 @@ def pick_up():
 	arm_b.set_goal_position(ARM_B_PICK)
 	gripper.set_goal_position(GRIPPER_PICK)
 
+def drop_off():
+	global arm_a, arm_b, gripper
+	arm_a.set_goal_position(ARM_A_HOME)
+	arm_b.set_goal_position(ARM_B_HOME)
+
 
 # Initialize motors and home arm/gripper.
 # While ROS is running, publish arm position...
@@ -93,7 +98,6 @@ def motor_control():
 	global arm_a, arm_b, gripper
 	port = initializeMotors()
 	rate = rospy.Rate(10)  # 10hz
-	home()
 	try:
 		while not rospy.is_shutdown():  # todo: how positions correspond to space
 			# publish arm status
@@ -106,7 +110,7 @@ def motor_control():
 			#todo: id, pickup, and drop off item
 			home()
 			pick_up()
-			home()
+			drop_off()
 
 			rate.sleep()
 	except rospy.ROSInterruptException:
@@ -158,6 +162,9 @@ if __name__ == '__main__':
 		home()
 		# time.sleep(2)
 		pick_up()
+		# time.sleep(3)
+		drop_off()
+
 
 		rospy.init_node('dynamixel_control', anonymous=False)
 
