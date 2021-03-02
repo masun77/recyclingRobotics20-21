@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import time
-
+import rospkg
 import rospy
 import serial.serialutil
 from recycling_mqp_messages.msg import *
@@ -44,8 +44,8 @@ def initialize_motors():
     rospy.loginfo("Initializing Dynamixel motors...")
 
     # create port for U2D2
-    # port = dynamixel.PortHandler(CONTROLLER_DEV.encode('utf-8'))
-    port = dynamixel.PortHandler(CONTROLLER_DEV)
+    port = dynamixel.PortHandler(CONTROLLER_DEV.encode('utf-8'))
+    # port = dynamixel.PortHandler(CONTROLLER_DEV)
 
     # attempt to connect to U2D2
     try:
@@ -87,7 +87,10 @@ def pick_up():
     global arm_a, arm_b, gripper
     arm_a.set_goal_position(ARM_A_PICK)
     arm_b.set_goal_position(ARM_B_PICK)
-    gripper.set_goal_position(GRIPPER_PICK)
+    if not arm_a.is_moving():
+        gripper.set_goal_position(GRIPPER_PICK)
+
+
 
 
 def drop_off():
@@ -105,6 +108,7 @@ def motor_control():
     try:
         while not rospy.is_shutdown():  # todo: how positions correspond to space
             # publish arm status
+            home()
             arm_pub.publish(arm_a.get_position()[0], arm_b.get_position()[0], arm_a.is_moving()[0],
                             arm_b.is_moving()[0])
 
@@ -113,9 +117,6 @@ def motor_control():
             gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
 
             # todo: id, pickup, and drop off item
-            time.sleep(2)
-            home()
-            time.sleep(2)
             pick_up()
             time.sleep(2)
             drop_off()
@@ -171,20 +172,20 @@ if __name__ == '__main__':
     try:
         # gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
         # arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
-        # rospy.init_node('dynamixel_control', anonymous=False)
-        # motor_control()
-
-        initialize_motors()
-        time.sleep(2)
-        home()
-        time.sleep(2)
-        pick_up()
-        time.sleep(2)
-        drop_off()
-        time.sleep(2)
-        pick_up()
-
         rospy.init_node('dynamixel_control', anonymous=False)
+        motor_control()
+
+        # initialize_motors()
+        # time.sleep(2)
+        # home()
+        # time.sleep(2)
+        # pick_up()
+        # time.sleep(2)
+        # drop_off()
+        # time.sleep(2)
+        # pick_up()
+        #
+        # rospy.init_node('dynamixel_control', anonymous=False)
 
     # arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
     # gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
