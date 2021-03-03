@@ -103,6 +103,7 @@ def drop_off():
 # While ROS is running, publish arm position...
 def motor_control():
     global arm_a, arm_b, gripper
+    rospy.init_node('dynamixel_control', anonymous=False)
     port = initialize_motors()
     rate = rospy.Rate(10)  # 10hz
     try:
@@ -172,7 +173,6 @@ if __name__ == '__main__':
     try:
         # gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
         # arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
-        rospy.init_node('dynamixel_control', anonymous=False)
         motor_control()
 
         # initialize_motors()
