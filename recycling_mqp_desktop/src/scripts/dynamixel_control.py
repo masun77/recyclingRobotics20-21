@@ -1,8 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import time
 import rospkg
 import rospy
 import serial.serialutil
+from _cffi_backend import callback
+
+import recycling_mqp_messages
 from recycling_mqp_messages.msg import *
 from recycling_mqp_messages.srv import *
 
@@ -91,8 +94,6 @@ def pick_up():
         gripper.set_goal_position(GRIPPER_PICK)
 
 
-
-
 def drop_off():
     global arm_a, arm_b, gripper
     arm_a.set_goal_position(ARM_A_HOME)
@@ -103,7 +104,7 @@ def drop_off():
 # While ROS is running, publish arm position...
 def motor_control():
     global arm_a, arm_b, gripper
-    rospy.init_node('dynamixel_control', anonymous=False)
+    rospy.init_node('dynamixelcontrol', anonymous=False)
     port = initialize_motors()
     rate = rospy.Rate(10)  # 10hz
     try:
@@ -161,12 +162,12 @@ def motor_control():
 # def callback(data):
 #     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
 #
-# def listener():
-#      rospy.init_node('listener', anonymous=True)
-#
-#      rospy.Subscriber("chatter", x_aligned, callback)
-#
-#      rospy.spin()
+def listener():
+     rospy.init_node('listener', anonymous=True)
+
+     rospy.Subscriber("chatter", StepperStatus.x_aligned, callback)
+
+     rospy.spin()
 
 # Main function. Set publishing and services information, then call motorControl to initialize and run motors
 if __name__ == '__main__':
