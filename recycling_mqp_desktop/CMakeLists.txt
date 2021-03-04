@@ -49,8 +49,11 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
-#   Message1.msg
-#   Message2.msg
+#   ArmStatus.msg
+#   ControlStatus.msg
+#   GripperStatus.msg
+#   LimitStatus.msg
+#   StepperStatus.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -83,7 +86,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add a build_depend and a exec_depend tag for "dynamic_reconfigure"
 ## * In this file (CMakeLists.txt):
 ##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
+ find_package(catkin REQUIRED COMPONENTS
+   roscpp
+   rospy
+   std_msgs
+   message_generation)
 ##   * uncomment the "generate_dynamic_reconfigure_options" section below
 ##     and list every .cfg file to be processed
 
@@ -107,6 +114,7 @@ catkin_package(
 #  LIBRARIES recycling_mqp_desktop
   CATKIN_DEPENDS rospy std_msgs recycling_mqp_msgs
 #  DEPENDS system_lib
+   CATKIN_DEPENDS message_runtime
 )
 
 ###########

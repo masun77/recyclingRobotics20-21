@@ -5,7 +5,6 @@ import rospy
 import serial.serialutil
 from _cffi_backend import callback
 
-import recycling_mqp_messages
 from recycling_mqp_messages.msg import *
 from recycling_mqp_messages.srv import *
 
@@ -165,7 +164,7 @@ def motor_control():
 def listener():
      rospy.init_node('listener', anonymous=True)
 
-     rospy.Subscriber("chatter", StepperStatus.x_aligned, callback)
+     rospy.Subscriber("chatter", x_aligned, callback)
 
      rospy.spin()
 

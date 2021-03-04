@@ -8,6 +8,7 @@ project(recycling_mqp_msgs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
   rospy
   std_msgs
   message_generation
@@ -44,7 +45,7 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the add_*_files sections below as needed
 ##     and list every .msg/.srv/.action file to be processed
 ##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
+##   * add every package in MSG_DEP_SET to
 
 ## Generate messages in the 'msg' folder
  add_message_files(
@@ -111,6 +112,7 @@ catkin_package(
 #  LIBRARIES recycling_mqp_msgs
   CATKIN_DEPENDS rospy std_msgs message_runtime
 #  DEPENDS system_lib
+CATKIN_DEPENDS message_runtime
 )
 
 ###########
