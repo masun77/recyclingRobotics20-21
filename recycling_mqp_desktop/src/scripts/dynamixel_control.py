@@ -7,6 +7,10 @@ from _cffi_backend import callback
 
 from recycling_mqp_messages.msg import *
 from recycling_mqp_messages.srv import *
+# from recycling_mqp_messages.msg.StepperStatus import x_aligned
+# from recycling_mqp_messages.msg import x_aligned
+
+
 
 import recycling_mqp_desktop.src.scripts.dynamixel_control.dynamixel_sdk as dynamixel
 from recycling_mqp_desktop.src.scripts.dynamixel_control import DynamixelMotor
@@ -158,9 +162,9 @@ def motor_control():
 #
 # 	return ArmControlResponse(int(success))
 
-# def callback(data):
-#     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-#
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
+
 def listener():
      rospy.init_node('listener', anonymous=True)
 
