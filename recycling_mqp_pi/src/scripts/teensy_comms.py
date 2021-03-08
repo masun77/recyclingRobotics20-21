@@ -6,6 +6,7 @@ import struct
 
 import stepper_service
 
+from recycling_mqp_messages.msg import *
 from recycling_mqp_messages.msg import StepperStatus, LimitStatus, ControlStatus
 from recycling_mqp_messages.srv import StepperControl
 
