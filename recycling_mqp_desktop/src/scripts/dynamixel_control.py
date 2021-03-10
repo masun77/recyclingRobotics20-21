@@ -5,11 +5,12 @@ import rospy
 import serial.serialutil
 from _cffi_backend import callback
 
-from recycling_mqp_messages.msg import *
-from recycling_mqp_messages.srv import *
+from recycling_mqp_msgs.msg import *
+from recycling_mqp_msgs.srv import *
 
-# from recycling_mqp_messages.msg.StepperStatus import x_aligned
-# from recycling_mqp_messages.msg import x_aligned
+# from recycling_mqp_msgs.msg.StepperStatus import x_aligned
+# from recycling_mqp_msgs.msg import x_aligned
+# from recycling_mqp_msgs.msg import x_aligned
 
 import recycling_mqp_desktop.src.scripts.dynamixel_control.dynamixel_sdk as dynamixel
 from recycling_mqp_desktop.src.scripts.dynamixel_control import DynamixelMotor

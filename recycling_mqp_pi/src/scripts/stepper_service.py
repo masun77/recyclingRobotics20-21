@@ -1,5 +1,5 @@
 
-from recycling_mqp_messages.srv import StepperControl
+from recycling_mqp_msgs.srv import StepperControl
 
 # TODO...
 
