@@ -4,6 +4,10 @@ import rospkg
 import rospy
 import serial.serialutil
 from _cffi_backend import callback
+import roslib
+roslib.load_manifest('recycling_mqp_dynamixels')
+# import sys
+# sys.path.insert(0, "recycling_mqp_desktop")
 
 from recycling_mqp_msgs.msg import *
 from recycling_mqp_msgs.srv import *
@@ -12,7 +16,8 @@ from recycling_mqp_msgs.srv import *
 # from recycling_mqp_msgs.msg import x_aligned
 # from recycling_mqp_msgs.msg import x_aligned
 
-import recycling_mqp_desktop.src.scripts.dynamixel_control.dynamixel_sdk as dynamixel
+# import dynamixel_sdk as dynamixel
+import recycling_mqp_dynamixels.dynamixel_sdk as dynamixel
 from recycling_mqp_desktop.src.scripts.dynamixel_control import DynamixelMotor
 from recycling_mqp_desktop.src.scripts.dynamixel_control import config
 
@@ -165,12 +170,14 @@ def motor_control():
 def callback(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
 
+
 def listener():
-     rospy.init_node('listener', anonymous=True)
+    rospy.init_node('listener', anonymous=True)
 
-     rospy.Subscriber("chatter", x_aligned, callback)
+    rospy.Subscriber("chatter", x_aligned, callback)
 
-     rospy.spin()
+    rospy.spin()
+
 
 # Main function. Set publishing and services information, then call motorControl to initialize and run motors
 if __name__ == '__main__':
@@ -178,6 +185,7 @@ if __name__ == '__main__':
         # gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
         # arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
         motor_control()
+        listener()
 
         # initialize_motors()
         # time.sleep(2)
