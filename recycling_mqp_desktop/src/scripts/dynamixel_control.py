@@ -48,6 +48,8 @@ ARM_A_PICK = 1900
 ARM_B_PICK = 2200
 GRIPPER_PICK = 1360
 
+#start and stop
+loop = True
 
 # Connect to the motors if possible (otherwise exit) and enable torque
 def initialize_motors():
@@ -55,8 +57,8 @@ def initialize_motors():
     rospy.loginfo("Initializing Dynamixel motors...")
 
     # create port for U2D2
-    port = dynamixel.PortHandler(CONTROLLER_DEV.encode('utf-8'))
-    # port = dynamixel.PortHandler(CONTROLLER_DEV)
+    # port = dynamixel.PortHandler(CONTROLLER_DEV.encode('utf-8'))
+    port = dynamixel.PortHandler(CONTROLLER_DEV)
 
     # attempt to connect to U2D2
     try:
@@ -98,8 +100,8 @@ def pick_up():
     global arm_a, arm_b, gripper
     arm_a.set_goal_position(ARM_A_PICK)
     arm_b.set_goal_position(ARM_B_PICK)
-    if not arm_a.is_moving():
-        gripper.set_goal_position(GRIPPER_PICK)
+    time.sleep(1)
+    gripper.set_goal_position(GRIPPER_PICK)
 
 
 def drop_off():
@@ -190,15 +192,20 @@ if __name__ == '__main__':
 
 
         initialize_motors()
-        action = input("Please write home or pickup")
-        if action == "home":
-            print("Homing!")
-            home()
-        elif action == "pickup":
-            print("Picking up!")
-            pick_up()
-        else:
-            print("Incorrect input")
+        while loop:
+            print()
+            action = input("Please write stop, home or pickup: ")
+            if action == "home":
+                print("Homing!")
+                home()
+            elif action == "pickup":
+                print("Picking up!")
+                pick_up()
+            elif action == "stop":
+                print("Stopping...")
+                loop = False
+            else:
+                print("Incorrect input")
 
     # arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
     # gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
