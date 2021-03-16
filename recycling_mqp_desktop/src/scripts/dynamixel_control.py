@@ -48,8 +48,9 @@ ARM_A_PICK = 1900
 ARM_B_PICK = 2200
 GRIPPER_PICK = 1360
 
-#start and stop
+# start and stop
 loop = True
+
 
 # Connect to the motors if possible (otherwise exit) and enable torque
 def initialize_motors():
@@ -189,7 +190,6 @@ if __name__ == '__main__':
         # motor_control()
         # listener()
         # rospy.init_node('dynamixel_control', anonymous=False)
-
 
         initialize_motors()
         while loop:
