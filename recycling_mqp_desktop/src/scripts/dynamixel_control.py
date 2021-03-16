@@ -4,8 +4,8 @@ import rospkg
 import rospy
 import serial.serialutil
 from _cffi_backend import callback
-import roslib
-roslib.load_manifest('recycling_mqp_dynamixels')
+# import roslib
+# roslib.load_manifest('recycling_mqp_dynamixels')
 # import sys
 # sys.path.insert(0, "recycling_mqp_desktop")
 
@@ -110,43 +110,43 @@ def drop_off():
 
 # Initialize motors and home arm/gripper.
 # While ROS is running, publish arm position...
-def motor_control():
-    global arm_a, arm_b, gripper
-    rospy.init_node('dynamixelcontrol', anonymous=False)
-    port = initialize_motors()
-    rate = rospy.Rate(10)  # 10hz
-    try:
-        while not rospy.is_shutdown():  # todo: how positions correspond to space
-            # publish arm status
-            home()
-            arm_pub.publish(arm_a.get_position()[0], arm_b.get_position()[0], arm_a.is_moving()[0],
-                            arm_b.is_moving()[0])
-
-            # publish gripper status
-            gripper_pos = gripper.get_position()[0]
-            gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
-
-            # todo: id, pickup, and drop off item
-            pick_up()
-            time.sleep(2)
-            drop_off()
-
-            rate.sleep()
-    except rospy.ROSInterruptException:
-        pass
-
-    # new line for aesthetics
-    print("")
-
-    # disable torques
-    rospy.logwarn("Stopping Dynamixel motors...")
-    arm_a.disable_torque()
-    arm_b.disable_torque()
-    gripper.disable_torque()
-
-    # close port
-    port.closePort()
-    rospy.logwarn("Motor control node safely stopped")
+# def motor_control():
+#     global arm_a, arm_b, gripper
+#     rospy.init_node('dynamixelcontrol', anonymous=False)
+#     port = initialize_motors()
+#     rate = rospy.Rate(10)  # 10hz
+#     try:
+#         while not rospy.is_shutdown():  # todo: how positions correspond to space
+#             # publish arm status
+#             home()
+#             arm_pub.publish(arm_a.get_position()[0], arm_b.get_position()[0], arm_a.is_moving()[0],
+#                             arm_b.is_moving()[0])
+#
+#             # publish gripper status
+#             gripper_pos = gripper.get_position()[0]
+#             gripper_pub.publish(gripper_pos, config.GRIPPER_OPEN_POS == gripper_pos, gripper.is_moving()[0])
+#
+#             # todo: id, pickup, and drop off item
+#             pick_up()
+#             time.sleep(2)
+#             drop_off()
+#
+#             rate.sleep()
+#     except rospy.ROSInterruptException:
+#         pass
+#
+#     # new line for aesthetics
+#     print("")
+#
+#     # disable torques
+#     rospy.logwarn("Stopping Dynamixel motors...")
+#     arm_a.disable_torque()
+#     arm_b.disable_torque()
+#     gripper.disable_torque()
+#
+#     # close port
+#     port.closePort()
+#     rospy.logwarn("Motor control node safely stopped")
 
 
 # def gripper_control(set_open):
@@ -167,16 +167,16 @@ def motor_control():
 #
 # 	return ArmControlResponse(int(success))
 
-def callback(data):
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-
-
-def listener():
-    rospy.init_node('listener', anonymous=True)
-
-    rospy.Subscriber("chatter", x_aligned, callback)
-
-    rospy.spin()
+# def callback(data):
+#     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
+#
+#
+# def listener():
+#     rospy.init_node('listener', anonymous=True)
+#
+#     rospy.Subscriber("chatter", x_aligned, callback)
+#
+#     rospy.spin()
 
 
 # Main function. Set publishing and services information, then call motorControl to initialize and run motors
@@ -184,20 +184,21 @@ if __name__ == '__main__':
     try:
         # gripper_pub = rospy.Publisher('gripper', GripperStatus, queue_size=1)
         # arm_pub = rospy.Publisher('arm', ArmStatus, queue_size=1)
-        motor_control()
-        listener()
-
-        # initialize_motors()
-        # time.sleep(2)
-        # home()
-        # time.sleep(2)
-        # pick_up()
-        # time.sleep(2)
-        # drop_off()
-        # time.sleep(2)
-        # pick_up()
-        #
+        # motor_control()
+        # listener()
         # rospy.init_node('dynamixel_control', anonymous=False)
+
+
+        initialize_motors()
+        action = input("Please write home or pickup")
+        if action == "home":
+            print("Homing!")
+            home()
+        elif action == "pickup":
+            print("Picking up!")
+            pick_up()
+        else:
+            print("Incorrect input")
 
     # arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
     # gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
