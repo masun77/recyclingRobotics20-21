@@ -3,6 +3,7 @@ import time
 import rospkg
 import rospy
 import serial.serialutil
+import pyfirmata
 from _cffi_backend import callback
 # import roslib
 # roslib.load_manifest('recycling_mqp_dynamixels')
@@ -190,22 +191,35 @@ if __name__ == '__main__':
         # motor_control()
         # listener()
         # rospy.init_node('dynamixel_control', anonymous=False)
+        board = pyfirmata.Arduino('/dev/ttyACM0')
+        it = pyfirmata.util.Iterator(board)
+        it.start()
 
-        initialize_motors()
-        while loop:
-            print()
-            action = input("Please write stop, home or pickup: ")
-            if action == "home":
-                print("Homing!")
-                home()
-            elif action == "pickup":
-                print("Picking up!")
-                pick_up()
-            elif action == "stop":
-                print("Stopping...")
-                loop = False
-            else:
-                print("Incorrect input")
+        board.digital[23].mode = pyfirmata.INPUT
+
+        start = board.digital[23].read()
+        stop = board.digital[22].read()
+
+        if start:
+            while not stop:
+                initialize_motors()
+                while loop:
+                    print()
+                    action = input("Please write stop, home or pickup: ")
+                    if action == "home":
+                        print("Homing!")
+                        home()
+                    elif action == "pickup":
+                        print("Picking up!")
+                        pick_up()
+                    elif action == "stop":
+                        print("Stopping...")
+                        loop = False
+                    else:
+                        print("Incorrect input")
+
+        else:
+            print("Waiting to start")
 
     # arm_control_srv = rospy.ServiceProxy('arm_controller', ArmControl, arm_control)
     # gripper_control_srv = rospy.ServiceProxy('gripper_controller', GripperControl, gripper_control)
