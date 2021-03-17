@@ -53,6 +53,7 @@ GRIPPER_PICK = 1360
 loop = True
 
 
+
 # Connect to the motors if possible (otherwise exit) and enable torque
 def initialize_motors():
     global arm_a, arm_b, gripper
@@ -194,11 +195,12 @@ if __name__ == '__main__':
         board = pyfirmata.Arduino('/dev/ttyACM0')
         it = pyfirmata.util.Iterator(board)
         it.start()
-
-        board.digital[23].mode = pyfirmata.INPUT
-
-        start = board.digital[23].read()
-        stop = board.digital[22].read()
+        #
+        # board.digital[23].mode = pyfirmata.INPUT
+        # start = board.digital[22].read()
+        # stop = board.digital[21].read()
+        start = board.get_pin('d:23:i')
+        stop = board.get_pin('d:22:i')
 
         if start:
             while not stop:
