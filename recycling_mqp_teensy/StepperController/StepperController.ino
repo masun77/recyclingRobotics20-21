@@ -87,15 +87,15 @@ void enableSteppers() {
 
 // Set the limit switches to receive input on the appropriate pins
 void setLimitSwitches() {
-  pinMode(LIM_X_MIN_A, INPUT_PULLUP);
-  pinMode(LIM_X_MIN_B, INPUT_PULLUP);
-  pinMode(LIM_X_MAX_A, INPUT_PULLUP);
-  pinMode(LIM_X_MAX_B, INPUT_PULLUP);
+  pinMode(LIM_X1_MIN, INPUT_PULLUP);
+  pinMode(LIM_X2_MIN, INPUT_PULLUP);
+  pinMode(LIM_X1_MAX, INPUT_PULLUP);
+  pinMode(LIM_X2_MAX, INPUT_PULLUP);
 
-  pinMode(LIM_Y_MIN_A, INPUT_PULLUP);
-  pinMode(LIM_Y_MIN_B, INPUT_PULLUP);
-  pinMode(LIM_Y_MAX_A, INPUT_PULLUP);
-  pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
+  pinMode(LIM_Y1_MIN, INPUT_PULLUP);
+  pinMode(LIM_Y2_MIN, INPUT_PULLUP);
+  pinMode(LIM_Y1_MAX, INPUT_PULLUP);
+  pinMode(LIM_Y2_MAX, INPUT_PULLUP);
 
   pinMode(START_BUTTON, INPUT_PULLUP);
   pinMode(STOP_BUTTON, INPUT_PULLUP);
@@ -117,60 +117,60 @@ void stopInterrupt (){
 
 // Attach appropriate interrupt function to each limit switch pin
 void setLimitSwitchInterrupts() {
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_A), limXMinAInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MIN_B), limXMinBInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_A), limXMaxAInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_X_MAX_B), limXMaxBInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_A), limYMinAInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MIN_B), limYMinBInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_A), limYMaxAInterrupt, FALLING);
-  attachInterrupt(digitalPinToInterrupt(LIM_Y_MAX_B), limYMaxBInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X1_MIN), limX1MinInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X2_MIN), limX2MinInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X1_MAX), limX1MaxInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_X2_MAX), limX2MaxInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y1_MIN), limY1MinInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y2_MIN), limY2MinInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y1_MAX), limY1MaxInterrupt, FALLING);
+  attachInterrupt(digitalPinToInterrupt(LIM_Y2_MAX), limY2MaxInterrupt, FALLING);
 }
 
 // todo: button interrupts
 
 // Mark that this limit switch was triggered
-void limXMinAInterrupt() {    // todo make motor and pin names correspond nicely
+void limX1MinInterrupt() {    // todo make motor and pin names correspond nicely
   limitSwitchTriggered = limitSwitchTriggered | B1;
   minLimitSwitchTriggered = true;
 }
 
 // Mark that this limit switch was triggered
-void limXMinBInterrupt() {
+void limX2MinInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10;
   minLimitSwitchTriggered = true;
 }
 
 // Mark that this limit switch was triggered
-void limXMaxAInterrupt() {
+void limX1MaxInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B100;
 }
 
 // Mark that this limit switch was triggered
-void limXMaxBInterrupt() {
+void limX2MaxInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B1000;
 }
 
 // Mark that this limit switch was triggered
-void limYMinAInterrupt() {
+void limY1MinInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10000;
   minLimitSwitchTriggered = true;
   
 }
 
 // Mark that this limit switch was triggered
-void limYMinBInterrupt() {
+void limY2MinInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B100000;
   minLimitSwitchTriggered = true;
 }
 
 // Mark that this limit switch was triggered
-void limYMaxAInterrupt() {
+void limY1MaxInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B1000000;
 }
 
 // Mark that this limit switch was triggered
-void limYMaxBInterrupt() {
+void limY2MaxInterrupt() {
   limitSwitchTriggered = limitSwitchTriggered | B10000000;
 }
 
@@ -424,23 +424,23 @@ void loop() {
       homing = true;
       if (startPressed){
         startPressed = false;
-        if ((!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B)) && !x_homed){
+        if ((!digitalRead(LIM_X1_MIN) or !digitalRead(LIM_X2_MIN)) && !x_homed){
           Serial.println("NEED TO MOVE X");
           stepper_x.move(15);
           stepper_x.run();
           x_homed = true; 
           next_state = HOME;
           robot_state = MOVING;
-        } else if (!digitalRead(LIM_X_MAX_A) or !digitalRead(LIM_X_MAX_B)){
+        } else if (!digitalRead(LIM_X1_MAX) or !digitalRead(LIM_X2_MAX)){
           stepper_x.move(-15);
           stepper_x.run();
           robot_state = MOVING;
         }
-        if ((!digitalRead(LIM_Y_MIN_A) or digitalRead(!LIM_Y_MIN_B)) && !y_homed){
+        if ((!digitalRead(LIM_Y1_MIN) or digitalRead(!LIM_Y2_MIN)) && !y_homed){
           moveY(15);
           runY();
           y_homed = true;
-        } else if (!digitalRead(LIM_Y_MAX_A) or !digitalRead(LIM_Y_MAX_B)){
+        } else if (!digitalRead(LIM_Y1_MAX) or !digitalRead(LIM_Y2_MAX)){
           moveY(-15);
           runY();
           robot_state = MOVING;
@@ -473,7 +473,7 @@ void loop() {
       next_state = SET_HOME;   
       break;
     case LS_HIT_HOMING:
-      if (!digitalRead(LIM_X_MIN_A) or !digitalRead(LIM_X_MIN_B) && !x_homed){
+      if (!digitalRead(LIM_X1_MIN) or !digitalRead(LIM_X2_MIN) && !x_homed){
         Serial.println("NEED TO MOVE X");
         stepper_x.stop();
         stepper_x.move(15);
@@ -482,7 +482,7 @@ void loop() {
         robot_state = MOVING;
         break;
       }
-      if (!digitalRead(LIM_Y_MIN_A) or !digitalRead(LIM_Y_MIN_B) && !y_homed){
+      if (!digitalRead(LIM_Y1_MIN) or !digitalRead(LIM_Y2_MIN) && !y_homed){
         stepper_y1.stop();
         stepper_y2.stop();
         moveY(15);

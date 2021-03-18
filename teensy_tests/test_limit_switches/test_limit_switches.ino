@@ -2,31 +2,29 @@
  *  Author: Isabelle
  *  Last Modified: 12/14/20
  *  
- *  NOTE: NOT TESTED
  */
 
 #include "pins.h"
  
 // initialize switch states as off
-int X_minA_state = 0;
-int X_maxA_state = 0;
-int X_minB_state = 0;
-int X_maxB_state = 0;
-int Y_minA_state = 0;
-int Y_maxA_state = 0;
-int Y_minB_state = 0;
-int Y_maxB_state = 0;         
+int X1_min_state = 0;
+int X1_max_state = 0;  
+int X2_min_state = 0;
+int X2_max_state = 0;   
+int Y1_min_state = 0;
+int Y2_min_state = 0;
+int Y1_max_state = 0;
+int Y2_max_state = 0;    
 
 void setLimitSwitches() {
-  pinMode(LIM_X_MIN_A, INPUT_PULLUP);
-  pinMode(LIM_X_MIN_B, INPUT_PULLUP);
-  pinMode(LIM_X_MAX_A, INPUT_PULLUP);
-  pinMode(LIM_X_MAX_B, INPUT_PULLUP);
-
-  pinMode(LIM_Y_MIN_A, INPUT_PULLUP);
-  pinMode(LIM_Y_MIN_B, INPUT_PULLUP);
-  pinMode(LIM_Y_MAX_A, INPUT_PULLUP);
-  pinMode(LIM_Y_MAX_B, INPUT_PULLUP);
+  pinMode(LIM_X1_MIN, INPUT_PULLUP);
+  pinMode(LIM_X1_MAX, INPUT_PULLUP);
+  pinMode(LIM_X2_MIN, INPUT_PULLUP);
+  pinMode(LIM_X2_MAX, INPUT_PULLUP);
+  pinMode(LIM_Y1_MIN, INPUT_PULLUP);
+  pinMode(LIM_Y2_MIN, INPUT_PULLUP);
+  pinMode(LIM_Y1_MAX, INPUT_PULLUP);
+  pinMode(LIM_Y2_MAX, INPUT_PULLUP);
 }
 
 void setup() {
@@ -37,42 +35,42 @@ void setup() {
 
 void loop() {
   // read the states of each switch
-  X_minA_state = digitalRead(LIM_X_MIN_A);
-  X_maxA_state = digitalRead(LIM_X_MAX_A);
-  X_minB_state = digitalRead(LIM_X_MIN_B);
-  X_maxB_state = digitalRead(LIM_X_MAX_B);
-  Y_minA_state = digitalRead(LIM_Y_MIN_A);
-  Y_maxA_state = digitalRead(LIM_Y_MAX_A);
-  Y_minB_state = digitalRead(LIM_Y_MIN_B);
-  Y_maxB_state = digitalRead(LIM_Y_MAX_B);
+  X1_min_state = digitalRead(LIM_X1_MIN);
+  X1_max_state = digitalRead(LIM_X1_MAX);
+  X2_min_state = digitalRead(LIM_X2_MIN);
+  X2_max_state = digitalRead(LIM_X2_MAX);
+  Y1_min_state = digitalRead(LIM_Y1_MIN);
+  Y2_min_state = digitalRead(LIM_Y2_MIN);
+  Y1_max_state = digitalRead(LIM_Y1_MAX);
+  Y2_max_state = digitalRead(LIM_Y2_MAX);
 
   String on_list = String();
 
   String text_disp = "";
 
-  if(X_minA_state == 0){
-    on_list.concat("  X_min");
+  if(X1_min_state == 0){
+    on_list.concat("  X1_min");
   }
-  if(X_maxA_state == 0){
-    on_list.concat("  X_max");
+  if(X1_max_state == 0){
+    on_list.concat("  X2_max");
   }
-  if(X_minB_state == 0){
-    on_list.concat("  X_min");
+  if(X2_min_state == 0){
+    on_list.concat("  X2_min");
   }
-  if(X_maxB_state == 0){
-    on_list.concat("  X_max");
+  if(X2_max_state == 0){
+    on_list.concat("  X2_max");
   }
-  if(Y_minA_state == 0){
+  if(Y1_min_state == 0){
     on_list.concat("  Y1_min");
   }
-  if(Y_maxA_state == 0){
+  if(Y2_min_state == 0){
+    on_list.concat("  Y2_min");
+  }
+  if(Y1_max_state == 0){
     on_list.concat("  Y1_max");
   }
-  if(Y_minB_state == 0){
-    on_list.concat("  Y1_min");
-  }
-  if(Y_maxB_state == 0){
-    on_list.concat("  Y1_max");
+  if(Y2_max_state == 0){
+    on_list.concat("  Y2_max");
   }
 
   // Display which buttons are pressed

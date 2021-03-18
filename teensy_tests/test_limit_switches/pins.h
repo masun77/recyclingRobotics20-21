@@ -21,20 +21,21 @@
 
 // limit switches
 
-// y axis minimum
-#define LIM_Y_MIN_A	2
-#define LIM_Y_MIN_B	3
 
-// y axis maxiumum
-#define LIM_Y_MAX_A	4
-#define LIM_Y_MAX_B	5
+// x1 axis min and max
+#define LIM_X1_MIN  2
+#define LIM_X1_MAX 3
 
-// x axis minimum
-#define LIM_X_MIN_A	6
-#define LIM_X_MIN_B	7
+// x2 axis maximum
+#define LIM_X2_MIN  4
+#define LIM_X2_MAX  5
 
-// x axis maximum
-#define LIM_X_MAX_A	8
-#define LIM_X_MAX_B	9
+// y1 axis minimum
+#define LIM_Y1_MIN  6
+#define LIM_Y1_MAX	7
+
+// y2 axis maxiumum
+#define LIM_Y2_MIN	8
+#define LIM_Y2_MAX	9
 
 #endif

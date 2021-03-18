@@ -20,22 +20,14 @@
 #define STR3_X_DIR	32
 
 // limit switches
-
-// y axis minimum
-#define LIM_Y_MIN_A	2    // rename these or y1 y2 motors
-#define LIM_Y_MIN_B	3
-
-// y axis maxiumum
-#define LIM_Y_MAX_A	4
-#define LIM_Y_MAX_B	5
-
-// x axis minimum
-#define LIM_X_MIN_A	6
-#define LIM_X_MIN_B	7
-
-// x axis maximum
-#define LIM_X_MAX_A	8
-#define LIM_X_MAX_B	9
+#define LIM_X1_MIN  2
+#define LIM_X1_MAX 3
+#define LIM_X2_MIN  4
+#define LIM_X2_MAX  5
+#define LIM_Y1_MIN  6
+#define LIM_Y1_MAX	7
+#define LIM_Y2_MIN	8
+#define LIM_Y2_MAX	9
 
 #define START_BUTTON 23
 #define STOP_BUTTON 22
