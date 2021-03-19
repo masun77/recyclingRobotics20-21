@@ -3,8 +3,9 @@ import time
 import rospkg
 import rospy
 import serial.serialutil
-import pyfirmata
+import pyfirmata2
 from _cffi_backend import callback
+
 # import roslib
 # roslib.load_manifest('recycling_mqp_dynamixels')
 # import sys
@@ -192,15 +193,16 @@ if __name__ == '__main__':
         # motor_control()
         # listener()
         # rospy.init_node('dynamixel_control', anonymous=False)
-        board = pyfirmata.Arduino('/dev/ttyACM0')
-        it = pyfirmata.util.Iterator(board)
+        board = pyfirmata2.Arduino('/dev/ttyACM0')
+        it = pyfirmata2.util.Iterator(board)
         it.start()
         #
         # board.digital[23].mode = pyfirmata.INPUT
-        # start = board.digital[22].read()
-        # stop = board.digital[21].read()
-        start = board.get_pin('d:23:i')
+        # start = board.digital[23].read()
+        # stop = board.digital[22].read()
+        start = board.get_pin('d:PIN_B3:i')
         stop = board.get_pin('d:22:i')
+
 
         if start:
             while not stop:
