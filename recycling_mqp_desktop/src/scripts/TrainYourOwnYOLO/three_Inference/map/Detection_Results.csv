@@ -1,0 +1,3 @@
+image,image_path,xmin,ymin,xmax,ymax,label,confidence,x_size,y_size
+img12.jpeg,C:\Users\Msun\@WPI\MQP\Code-20-21\recycling_mqp_desktop\src\scripts\TrainYourOwnYOLO\Data\Source_Images\Test_Images\img12.jpeg,1556,1094,2096,1427,0,0.2565958797931671,4032,3024
+img4.jpeg,C:\Users\Msun\@WPI\MQP\Code-20-21\recycling_mqp_desktop\src\scripts\TrainYourOwnYOLO\Data\Source_Images\Test_Images\img4.jpeg,512,9,1168,443,0,0.26158303022384644,4032,3024
