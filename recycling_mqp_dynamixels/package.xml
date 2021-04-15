@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>recycling_mqp_desktop</name>
+  <name>recycling_mqp_dynamixels</name>
   <version>0.0.1</version>
-  <description>The WPI Recycling Sorting Robot MQP desktop master package</description>
+  <description>The WPI Recycling Sorting Robot MQP dynamixels master package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
