@@ -546,6 +546,7 @@ void loop() {
       // Just wait for now
       limitSwitchTriggered = B00000000;
       Serial.write(limitSwitchTriggered);
+      Serial.write("Please input X and Y positions in the following formate: <XXXX,YYY>");
       homing = false;
 
       //possible if statements to defer between MV and Manual???
