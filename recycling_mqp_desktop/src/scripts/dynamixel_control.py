@@ -112,6 +112,7 @@ def drop_off():
     global arm_a, arm_b, gripper
     arm_a.set_goal_position(ARM_A_HOME)
     arm_b.set_goal_position(ARM_B_HOME)
+    gripper.set_goal_position(GRIPPER_PICK)
 
 
 # Initialize motors and home arm/gripper.
@@ -193,32 +194,37 @@ if __name__ == '__main__':
         # motor_control()
         # listener()
         # rospy.init_node('dynamixel_control', anonymous=False)
-        board = pyfirmata2.Arduino('/dev/ttyACM0')
-        it = pyfirmata2.util.Iterator(board)
-        it.start()
+        # board = pyfirmata2.Arduino('/dev/ttyACM0')
+        # it = pyfirmata2.util.Iterator(board)
+        # it.start()
         #
         # board.digital[23].mode = pyfirmata.INPUT
         # start = board.digital[23].read()
         # stop = board.digital[22].read()
-        start = board.get_pin('d:PIN_B3:i')
-        stop = board.get_pin('d:22:i')
-
+        # start = board.get_pin('d:PIN_B3:i')
+        # stop = board.get_pin('d:22:i')
+        start = True
+        stop = False
 
         if start:
             while not stop:
                 initialize_motors()
                 while loop:
                     print()
-                    action = input("Please write stop, home or pickup: ")
+                    action = input("Please write stop, home, pickup, or drop off: ")
                     if action == "home":
                         print("Homing!")
                         home()
                     elif action == "pickup":
                         print("Picking up!")
                         pick_up()
+                    elif action == "drop off":
+                        print("Dropping off!")
+                        drop_off()
                     elif action == "stop":
                         print("Stopping...")
                         loop = False
+                        stop = True
                     else:
                         print("Incorrect input")
 
